@@ -5,10 +5,12 @@ public class Main {
 	
 	public static void main(String[] args){
 		
-		Monitor monitor = new Monitor();
+		RedDePetri red = new RedDePetri();
+		Monitor monitor = new Monitor(red);
 		monitor.fireTransition(0);
 		monitor.fireTransition(1);
 		monitor.fireTransition(3);
+		monitor.fireTransition(1);
+		monitor.fireTransition(4);
 	}
 }
-
