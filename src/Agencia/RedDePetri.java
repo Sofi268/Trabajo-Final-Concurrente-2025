@@ -1,13 +1,25 @@
 package Agencia;
 
 public class RedDePetri {
-    final int plazas = 15;
-    final int transiciones = 12;
+    public static final int plazas = 15;
+    public static final int transiciones = 12;
     private static final Integer[] marcadoInicial = {5, 1, 0, 0, 5, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0};
     private static Integer[] marcadoActual;
     private static Integer[][] matrizIncidencia;
     private static Integer[] transicionSensible;
     private static Integer[] secuenciaDisparo;
+    public static final Integer[] invarianteP1 = {1,2}; // P1 + P2 = 1
+    public static final Integer[] invarianteP2 = {2,3,4}; // P2 + P3 + P4 = 5
+    public static final Integer[] invarianteP3 = {5,6}; // P5 + P6 = 1
+    public static final Integer[] invarianteP4 = {7,8}; // P7 + P8 = 1
+    public static final Integer[] invarianteP5 = {10,11,12,13}; //P10 + P11 + P12 + P13 = 1
+    public static final Integer[] invarianteP6 = {0,2,3,5,8,9,11,12,13,14}; // P0 + P2 + P3 + P5 + P8 + P9 + P11 + P12 + P13 + P14 = 5
+    public static final int inv1 = 1;
+    public static final int inv2 = 5;
+    public static final int inv3 = 1;
+    public static final int inv4 = 1;
+    public static final int inv5 = 1;
+    public static final int inv6 = 5;
 
     public RedDePetri() {
         marcadoActual = marcadoInicial.clone(); 
@@ -82,7 +94,82 @@ public class RedDePetri {
         
         System.out.println("Marcado actual: " + java.util.Arrays.toString(marcadoActual));
         sensibilizarT(); // Recalcula transiciones sensibilizadas
+        
+        if(comprobarInvariantes()) {
+        	System.out.println("Se cumplen todos los invariantes luego del disparo de: T" + t);
+        }
+    }
+    
+    private boolean comprobarInvariantes() {
+    	
+    	int a = 0;
+    	
+    	int sum = 0;
+    	
+    	for(int x : invarianteP1) {
+    		sum += marcadoActual[x];
+    	}
+    	
+    	if(!(sum==inv1)) {
+    		System.out.println("No se cumple el invariante de plaza 1 al disparar la transicion");
+    		a++;
+    	}
+    	
+    	sum = 0;
+    	
+    	for(int x : invarianteP2) {
+    		sum += marcadoActual[x];
+    	}
+    	
+    	if(!(sum==inv2)) {
+    		System.out.println("No se cumple el invariante de plaza 2 al disparar la transicion");
+    		a++;
+    	}
+    	
+    	sum = 0;
+    	
+    	for(int x : invarianteP3) {
+    		sum += marcadoActual[x];
+    	}
+    	
+    	if(!(sum==inv3)) {
+    		System.out.println("No se cumple el invariante de plaza 3 al disparar la transicion");
+    		a++;
+    	}
+    	
+    	sum = 0;
+    	
+    	for(int x : invarianteP4) {
+    		sum += marcadoActual[x];
+    	}
+    	
+    	if(!(sum==inv4)) {
+    		System.out.println("No se cumple el invariante de plaza 4 al disparar la transicion");
+    		a++;
+    	}
+    	
+    	sum = 0;
+    	
+    	for(int x : invarianteP5) {
+    		sum += marcadoActual[x];
+    	}
+    	
+    	if(!(sum==inv5)) {
+    		System.out.println("No se cumple el invariante de plaza 5 al disparar la transicion");
+    		a++;
+    	}
+    	
+    	sum = 0;
+    	
+    	for(int x : invarianteP6) {
+    		sum += marcadoActual[x];
+    	}
+    	
+    	if(!(sum==inv6)) {
+    		System.out.println("No se cumple el invariante de plaza 6 al disparar la transicion");
+    	}
+    	
+    	return a>0 ? false : true;
     }
 
 }
-
