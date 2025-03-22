@@ -1,5 +1,0 @@
-package Agencia;
-
-public interface MonitorInterface {
-	boolean fireTransition(int transition);
-}
