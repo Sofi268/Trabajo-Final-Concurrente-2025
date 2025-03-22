@@ -20,6 +20,8 @@ public class RedDePetri {
     public static final int inv4 = 1;
     public static final int inv5 = 1;
     public static final int inv6 = 5;
+    private Integer[][] invariantes = {invarianteP1, invarianteP2, invarianteP3, invarianteP4, invarianteP5, invarianteP6};
+    private int[] valoresEsperados = {inv1, inv2, inv3, inv4, inv5, inv6};
 
     public RedDePetri() {
         marcadoActual = marcadoInicial.clone(); 
@@ -102,74 +104,21 @@ public class RedDePetri {
     
     private boolean comprobarInvariantes() {
     	
-    	int a = 0;
-    	
-    	int sum = 0;
-    	
-    	for(int x : invarianteP1) {
-    		sum += marcadoActual[x];
-    	}
-    	
-    	if(!(sum==inv1)) {
-    		System.out.println("No se cumple el invariante de plaza 1 al disparar la transicion");
-    		a++;
-    	}
-    	
-    	sum = 0;
-    	
-    	for(int x : invarianteP2) {
-    		sum += marcadoActual[x];
-    	}
-    	
-    	if(!(sum==inv2)) {
-    		System.out.println("No se cumple el invariante de plaza 2 al disparar la transicion");
-    		a++;
-    	}
-    	
-    	sum = 0;
-    	
-    	for(int x : invarianteP3) {
-    		sum += marcadoActual[x];
-    	}
-    	
-    	if(!(sum==inv3)) {
-    		System.out.println("No se cumple el invariante de plaza 3 al disparar la transicion");
-    		a++;
-    	}
-    	
-    	sum = 0;
-    	
-    	for(int x : invarianteP4) {
-    		sum += marcadoActual[x];
-    	}
-    	
-    	if(!(sum==inv4)) {
-    		System.out.println("No se cumple el invariante de plaza 4 al disparar la transicion");
-    		a++;
-    	}
-    	
-    	sum = 0;
-    	
-    	for(int x : invarianteP5) {
-    		sum += marcadoActual[x];
-    	}
-    	
-    	if(!(sum==inv5)) {
-    		System.out.println("No se cumple el invariante de plaza 5 al disparar la transicion");
-    		a++;
-    	}
-    	
-    	sum = 0;
-    	
-    	for(int x : invarianteP6) {
-    		sum += marcadoActual[x];
-    	}
-    	
-    	if(!(sum==inv6)) {
-    		System.out.println("No se cumple el invariante de plaza 6 al disparar la transicion");
-    	}
-    	
-    	return a>0 ? false : true;
-    }
+    	boolean cumpleTodos = true;
 
+        for (int i = 0; i < invariantes.length; i++) {
+            int suma = 0;
+
+            for (int plaza : invariantes[i]) {
+                suma += marcadoActual[plaza];
+            }
+
+            if (suma != valoresEsperados[i]) {
+                System.out.println("No se cumple el invariante de plaza " + (i + 1) + " al disparar la transición");
+                cumpleTodos = false;
+            }
+        }
+
+        return cumpleTodos;
+    }
 }
