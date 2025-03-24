@@ -1,6 +1,8 @@
 package Agencia;
 
 public class RedDePetri {
+    private static RedDePetri uniqueInstance;  //usada para implementaacion de patron de diseño singleton.
+
     public static final int plazas = 15;
     public static final int transiciones = 12;
     private static final Integer[] marcadoInicial = {5, 1, 0, 0, 5, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0};
@@ -23,7 +25,21 @@ public class RedDePetri {
     private Integer[][] invariantes = {invarianteP1, invarianteP2, invarianteP3, invarianteP4, invarianteP5, invarianteP6};
     private Integer[] invariantesPlazas = {inv1, inv2, inv3, inv4, inv5, inv6};
 
-    public RedDePetri() {
+    /**
+     * Se asegura que se utilice el patron Singleton, es decir, que solo se puede crear una Red de Petri
+     * @return Red de Petri
+     */
+    public static RedDePetri getInstance(){
+        if(uniqueInstance == null){
+            uniqueInstance = new RedDePetri();
+            uniqueInstance.IniciarRedDePetri();
+        }
+        else{
+            System.out.println("Ya existe una instancia de Red de Petri");
+        }
+        return uniqueInstance;
+    }
+    public void IniciarRedDePetri() {
         marcadoActual = marcadoInicial.clone(); 
         System.out.println("Marcado inicial: " + java.util.Arrays.toString(marcadoActual));
         
