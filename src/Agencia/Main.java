@@ -22,21 +22,24 @@ public class Main {
 	}
 	// -----------------------------------------------------------------------------------------------------------------
 	// INICIO METODOS DE UTILIDAD:
-	/* *
-	 * Creacion de puestos de trabajo.
-	 * */
+	
+	/**
+	 * @brief Creacion de puestos de trabajo.
+	 */
 	private static void CrearPuestos(){
 		//TODO
 	}
-	/* *
-	 * inicia el trabajo de los empleados en sus puestos de trabajo.
-	 * */
+	
+	/**
+	 * @brief Inicia el trabajo de los empleados en sus puestos de trabajo.
+	 */
 	private static void IniciarPuestos(){
 		//TODO
 	}
-	/* *
-	*  Inicia la escritura en el log de las estadisticas del programa.
-	* */
+	
+	/**
+	 * @brief Inicia la escritura en el log de las estadisticas del programa.
+	 */
 	private static void IniciarEstadisticas(){
 		//TODO
 	}
