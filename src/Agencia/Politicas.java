@@ -7,8 +7,15 @@ package Agencia;
 public class Politicas {
     private static Politicas uniqueInstance;
     
+    /**
+     * @brief Constructor vacio
+     */
     public Politicas() {}
     
+    /**
+     * @brief Determina la creacion de la politica elegida
+     * @param politica a implementar
+     */
     public Politicas(String politica) {
     	if(politica.equals("Balanceada")) iniciarPoliticaBalanceada();
     	else {
@@ -20,7 +27,7 @@ public class Politicas {
     }
     
     /**
-     * Aplicando patron de diseño singleton nos aseguramos que solo haya 1 politica activa.
+     * @brief Aplicando patron de diseño singleton nos aseguramos que solo haya 1 politica activa.
      * @return Políticas
      */
     public static Politicas getInstance(String politica){
@@ -32,14 +39,16 @@ public class Politicas {
         return uniqueInstance;
     }    
 
-    /* inicializar Balanceada
-    * */
+    /**
+     * @brief Crea instancia de Politica Balanceada
+     */
     public void iniciarPoliticaBalanceada(){
         // TODO
     }
     
-    /* inicializar politica con Prioridad
-     * */
+    /**
+     * @brief Crea instancia de Politica con Prioridad
+     */
      public void iniciarPoliticaPrioridad(){
          // TODO
      }
