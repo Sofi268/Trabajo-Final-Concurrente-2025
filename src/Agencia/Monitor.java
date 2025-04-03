@@ -42,11 +42,6 @@ public class Monitor implements MonitorInterface {
 
     private boolean entrarMonitor(int t) {
         System.out.println("Entrando al monitor con transición: " + t);
-        if (!rdp.isSensible(t)) {
-            System.out.println("Transición " + t + " ya no es sensible. Derivando a cola.");
-            derivarACola(t);
-            return false;
-        }
 
         boolean transitionFired = ejecutarDisparo(t);
 
@@ -57,7 +52,7 @@ public class Monitor implements MonitorInterface {
         }
 
         int tSensible = hayColaCondicion();
-        if (tSensible >= 0 && rdp.isSensible(tSensible)) {
+        if (tSensible >= 0) {
             System.out.println("Señalizando siguiente transición en cola: " + tSensible);
             señalizarSig(tSensible);
         } else {
@@ -78,20 +73,13 @@ public class Monitor implements MonitorInterface {
     }
 
     private void señalizarSig(int tSensible) {
-        if (rdp.isSensible(tSensible)) {
-            System.out.println("Liberando hilo en cola de transición " + tSensible);
-            colasConHilos[tSensible] = false;
-            colasCondicion[tSensible].release();
-        }
+        System.out.println("Liberando hilo en cola de transición " + tSensible);
+        colasConHilos[tSensible] = false;
+        colasCondicion[tSensible].release();
     }
 
     private boolean ejecutarDisparo(int transition) {
-        System.out.println("Intentando disparar transición " + transition);
-        if (!rdp.isSensible(transition)) {
-            System.out.println("Transición " + transition + " ya no es sensible.");
-            return false;
-        }
-        
+       
         boolean disparo = rdp.disparar(transition);
         
         if (!disparo || tieneMarcadoNegativo()) {
