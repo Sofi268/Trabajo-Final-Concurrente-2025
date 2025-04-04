@@ -1,17 +1,15 @@
+/*
+* */
 package Agencia;
-
 public class Main {
-
-	public static RedDePetri red = new RedDePetri(); 
-    public static final Monitor monitor = new Monitor(red);
+	public static RedDePetri red = RedDePetri.getInstance();
+    public static final Monitor monitor = Monitor.getInstance();
 
     public static void main(String[] args){
-        Thread[] hilos = new Thread[9];  
-
+        Thread[] hilos = new Thread[9];
         CrearPuestos(hilos);
         IniciarPuestos(hilos);
         IniciarEstadisticas();
-
         try {
             for (Thread hilo : hilos) {
                 if (hilo != null) {
@@ -22,10 +20,7 @@ public class Main {
             Thread.currentThread().interrupt();
             System.out.println("Error al esperar los hilos.");
         }
-    	
-    	
     }
-
     // -----------------------------------------------------------------------------------------------------------------
     // INICIO METODOS DE UTILIDAD:
 
@@ -49,7 +44,6 @@ public class Main {
         hilos[5] = new Thread(agenteTipo2);  
         Agente agenteTipo3 = new Agente(monitor, 2);
         hilos[6] = new Thread(agenteTipo3);
-
     }
 
     /**

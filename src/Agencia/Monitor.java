@@ -3,16 +3,31 @@ package Agencia;
 import java.util.concurrent.Semaphore;
 
 public class Monitor implements MonitorInterface {
-    private static RedDePetri rdp;
+    private static Monitor uniqueInstance;
+    private static RedDePetri rdp = RedDePetri.getInstance();
     private static final Politicas politicas = Politicas.getInstance("Balanceada");
     private static Semaphore mutex = new Semaphore(1, true);
     private static Semaphore colaEntrada = new Semaphore(0, true);
     private static Semaphore[] colasCondicion;
     private static boolean[] colasConHilos;
-    private int ultimoOrden;
+    private static int ultimoOrden;
 
-    public Monitor(RedDePetri redPetri) {
-        rdp = redPetri;
+    public Monitor() {
+    }
+
+    /* Aplico patron strategy ...
+    * */
+    public static Monitor getInstance(){
+        if(uniqueInstance == null){
+            uniqueInstance = new Monitor();
+            startMonitor();
+        }
+        return uniqueInstance;
+    }
+
+    /* startMonitor:
+    * */
+    public static void startMonitor(){
         colasCondicion = new Semaphore[rdp.getTransiciones()];
         colasConHilos = new boolean[rdp.getTransiciones()];
         ultimoOrden = -1;
@@ -24,25 +39,45 @@ public class Monitor implements MonitorInterface {
 
     @Override
     public boolean fireTransition(int transition) {
-        try {
             System.out.println("Intentando disparar transición: " + transition);
-            mutex.acquire();
+        agarrarMutex();
             System.out.println("Mutex adquirido para transición: " + transition);
-            if (!rdp.isSensible(transition)) {
-                System.out.println("Transición " + transition + " no es sensible. Derivando a cola.");
-                derivarACola(transition);
-                return false;
-            }
-            return entrarMonitor(transition);
-        } catch (InterruptedException e) {
+        entrarMonitor(transition);
+        return false;
+    }
+    //-------------------------------------------------------------------------------------------------------------
+    /**
+     * Se intenta agarrar el mutex:
+     *      si -> el hilo ingresa en la sección crítica (monitor)
+     *      no ->
+     */
+    private void agarrarMutex(){
+        try {
+            mutex.acquire();
+        }
+        catch (InterruptedException e) {
             System.out.println("Error en fireTransition: " + e.getMessage());
-            return false;
+            //System.exit(1);
+        }
+    }
+    private static void liberarMutex() {
+        if (mutex.availablePermits() == 0) {
+            System.out.println("Liberando mutex.");
+            mutex.release();
         }
     }
 
-    private boolean entrarMonitor(int t) {
-        System.out.println("Entrando al monitor con transición: " + t);
+    //-------------------------------------------------------------------------------------------------------------
+    private static boolean entrarMonitor(int t) {
+        //espacio para optmizar sies temporal o no y si esta sensibilizado o no
 
+        if (!rdp.isSensible(t)) {
+            System.out.println("Transición " + t + " no es sensible. Derivando a cola.");
+            derivarACola(t);
+            return false;
+        }
+
+        System.out.println("Entrando al monitor con transición: " + t);
         boolean transitionFired = ejecutarDisparo(t);
 
         if (!transitionFired) {
@@ -64,21 +99,14 @@ public class Monitor implements MonitorInterface {
         }
         return true;
     }
-    
-    private void liberarMutex() {
-        if (mutex.availablePermits() == 0) {
-            System.out.println("Liberando mutex.");
-            mutex.release();
-        }
-    }
 
-    private void señalizarSig(int tSensible) {
+    private static void señalizarSig(int tSensible) {
         System.out.println("Liberando hilo en cola de transición " + tSensible);
         colasConHilos[tSensible] = false;
         colasCondicion[tSensible].release();
     }
 
-    private boolean ejecutarDisparo(int transition) {
+    private static boolean ejecutarDisparo(int transition) {
        
         boolean disparo = rdp.disparar(transition);
         
@@ -90,7 +118,7 @@ public class Monitor implements MonitorInterface {
         return true;
     }
     
-    private boolean tieneMarcadoNegativo() {
+    private static boolean tieneMarcadoNegativo() {
         for (Integer valor : rdp.getMarcadoActual()) {
             if (valor < 0) {
                 System.out.println("Marcado negativo detectado.");
@@ -100,7 +128,7 @@ public class Monitor implements MonitorInterface {
         return false;
     }
 
-    private int hayColaCondicion() {
+    private static int hayColaCondicion() {
         int n = colasConHilos.length;
         int inicio = (ultimoOrden + 1) % n;
         System.out.println("Buscando transiciones en cola de condición.");
@@ -122,7 +150,7 @@ public class Monitor implements MonitorInterface {
         return -1;
     }
 
-    private void derivarACola(int t) {
+    private static void derivarACola(int t) {
         try {
             System.out.println("Colocando transición " + t + " en cola de condición.");
             colasConHilos[t] = true;

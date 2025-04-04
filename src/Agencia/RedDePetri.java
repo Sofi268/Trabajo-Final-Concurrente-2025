@@ -29,21 +29,26 @@ public class RedDePetri {
     public static final int inv6 = 5;
     private Integer[][] invariantes = {invarianteP1, invarianteP2, invarianteP3, invarianteP4, invarianteP5, invarianteP6};
     private Integer[] invariantesPlazas = {inv1, inv2, inv3, inv4, inv5, inv6};
-    private ArrayList<Integer> transicionesDisparadas;
+    private static ArrayList<Integer> transicionesDisparadas;
     
     /**
      * @brief Constructor vacio
      */
-    public RedDePetri(){
-    	iniciarRedDePetri();
+    public RedDePetri(){ }
+    public static RedDePetri getInstance(){
+        if(uniqueInstance == null){
+            uniqueInstance = new RedDePetri();
+            startRedDePetri();
+        }
+        return uniqueInstance;
     }
 
 	/**
 	 * @brief Inicializa los valores de la red 
-	 * Asigna el marcado actual como el inicial y carga la matriz de incidencia
+	 * Asigna el marcado actual como el inicial y carga la matriz de incidencia.
 	 * Actualiza las transiciones sensibilizadas
 	* */
-    private void iniciarRedDePetri() {
+    private static void startRedDePetri() {
         marcadoActual = marcadoInicial.clone(); 
         System.out.println("Marcado inicial: " + java.util.Arrays.toString(marcadoActual));
         
@@ -73,7 +78,7 @@ public class RedDePetri {
     /**
      * @brief Comprueba que transiciones ahora son sensibles y actualiza su estado en el vector
      */
-    private void sensibilizarT() {
+    private static void sensibilizarT() {
         for (int j = 0; j < transiciones; j++) {
             boolean sensibilizada = true;
             // Verifica para cada plaza si tiene suficientes tokens para disparar la transición
