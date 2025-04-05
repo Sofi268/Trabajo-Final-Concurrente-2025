@@ -1,7 +1,7 @@
 package Agencia;
 import java.util.concurrent.Semaphore;
 
-public class Monitor{
+public class Monitor implements MonitorInterface{
     private static Monitor uniqueInstance;
     private static RedDePetri rdp = RedDePetri.getInstance();
     private static final Politicas politicas = Politicas.getInstance("Balanceada");
