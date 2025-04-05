@@ -10,13 +10,12 @@ import java.util.concurrent.TimeUnit;
 public class Estadisticas implements Runnable {
     private ArrayList<Integer> transicionesDisparadas;
     private boolean listo;
-    private static RedDePetri red;
+    private static RedDePetri red = RedDePetri.getInstance();
     private static int cantidadInvariantes;
 
-    public Estadisticas(RedDePetri redPetri) {
+    public Estadisticas() {
         transicionesDisparadas = new ArrayList<>();
         listo = false;
-        red = redPetri;
         cantidadInvariantes = 0;
     }
 
