@@ -11,7 +11,18 @@ public class Politicas {
      * @brief Constructor vacio
      */
     public Politicas() {}
-    
+    /**
+     * @brief Aplicando patron de diseño singleton nos aseguramos que solo haya 1 politica activa.
+     * @return Políticas
+     */
+    public static Politicas getInstance(String politica){
+        if (uniqueInstance == null){
+            uniqueInstance = new Politicas(politica);
+        } else {
+            System.out.println("Ya existe una instancia de políticas");
+        }
+        return uniqueInstance;
+    }
     /**
      * @brief Determina la creacion de la politica elegida
      * @param politica a implementar
@@ -25,19 +36,6 @@ public class Politicas {
     		}
     	}
     }
-    
-    /**
-     * @brief Aplicando patron de diseño singleton nos aseguramos que solo haya 1 politica activa.
-     * @return Políticas
-     */
-    public static Politicas getInstance(String politica){
-        if (uniqueInstance == null){
-            uniqueInstance = new Politicas(politica);
-        } else {
-            System.out.println("Ya existe una instancia de políticas");
-        }
-        return uniqueInstance;
-    }    
 
     /**
      * @brief Crea instancia de Politica Balanceada
