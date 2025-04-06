@@ -17,17 +17,22 @@ public class Agente implements Runnable {
 	
 	@Override
 	public void run() {
+		boolean estado1;
+		boolean estado2;
 		if(tipo==1) {
 			while(true) {
 				for(int x: transiciones1) {
-					monitor.fireTransition(x);
+					do{
+						estado1 = monitor.fireTransition(x);
+					}while(!estado1);
 				}
 			}
-		}
-		else {
+		}else {
 			while(true) {
 				for(int x: transiciones2) {
-					monitor.fireTransition(x);
+					do{
+						estado2 = monitor.fireTransition(x);
+					}while(!estado2);
 				}
 			}
 		}

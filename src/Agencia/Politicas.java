@@ -1,7 +1,3 @@
-/**
- * @file Politicas.java
- * @brief Politicas para la determinacion de transiciones a ser disparadas estocasticamente ante conflictos estructurales
- */
 package Agencia;
 
 public class Politicas {
@@ -18,15 +14,8 @@ public class Politicas {
     private boolean permitirT6;
     private boolean permitirT7;
 
-     /**
-     * @brief Constructor vacio
-     */    
     public Politicas() {}
-    
-    /**
-     * @brief Aplicando patron de diseño singleton nos aseguramos que solo haya 1 politica activa.
-     * @return Políticas
-     */
+
     public Politicas(String politica) {
         nombre = politica;
         cantDisparosT2 = 0;
@@ -53,16 +42,10 @@ public class Politicas {
         return uniqueInstance;
     }
 
-    /**
-     * @brief Crea instancia de Politica Balanceada
-     */
     private void iniciarPoliticaBalanceada(){
         tipoPolitica = 1;
     }
-    
-    /**
-     * @brief Crea instancia de Politica con Prioridad
-     */
+
     private void iniciarPoliticaPrioridad(){
         tipoPolitica = 2;
     }
@@ -129,3 +112,4 @@ public class Politicas {
         return nombre;
     }    
 }
+
