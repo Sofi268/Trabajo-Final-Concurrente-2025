@@ -5,6 +5,7 @@
 package Agencia;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class RedDePetri {
     private static RedDePetri uniqueInstance;  //Para implementacion de patron de diseño singleton.
@@ -38,7 +39,8 @@ public class RedDePetri {
     private static Long[] timeStamp = new Long[Constantes.cantidadTransiciones]; //Tiempos de sensibilizado de cada transición
     private static long tiempoInicio; //Tiempo de inicio del sistema
     private static boolean primeraCopia = true; // Para saber si es la primera vez que se llama a sensibilizarT()
-
+    private static Politicas politica = Politicas.getInstance("Balanceada"); // "Balanceada" o "Prioridad".
+  
     /**
      * @brief Constructor vacio
      */
@@ -144,10 +146,22 @@ public class RedDePetri {
         transicionesDisparadas.add(t);
         System.out.println("Marcado actual: " + java.util.Arrays.toString(marcadoActual));
         sensibilizarT();
-        if(t==2) disparosT2++;
-        if(t==3) disparosT3++;
-        if(t==6) disparosT6++;
-        if(t==7) disparosT7++;
+        if(t==2){
+             disparosT2++;
+             politica.actualizarT2();
+        }
+        if(t==3){
+            disparosT3++;
+            politica.actualizarT3();
+       }
+        if(t==6){
+            disparosT6++;
+            politica.actualizarT6();
+       }
+        if(t==7){
+            disparosT7++;
+            politica.actualizarT7();
+       }
         comprobarInvariantes(t);
         return true;
     }
@@ -255,13 +269,13 @@ public class RedDePetri {
     public Long tiempoSensibilizado(Integer t){
         Long tActual = getTiempoActual();
             System.out.println("---Tiempo actual: " + tActual +" ms");
-        Long tMin = timeStamp[t] + Constantes.ALFA;
+        Long tMin = timeStamp[t] + Constantes.ALFA ;
             System.out.println("---Tiempo mínimo: " + tMin +" ms");
         Long tMax = timeStamp[t] + Constantes.BETA;
             System.out.println("---Tiempo máximo: " + tMax +" ms");
         if ((tActual >= tMin) && (tActual <= tMax)){  // Se encuentra dentro del intervalo temporal
             return 0L;
-        }else if (tActual < tMin) {          // Se encuentra antes del intervalo temporal
+        }else if (tActual<tMin) {          // Se encuentra antes del intervalo temporal
             return tMin - tActual;
         }else{                             // Se encuentra después del intervalo temporal
             return null; // Se pasó de la ventana
