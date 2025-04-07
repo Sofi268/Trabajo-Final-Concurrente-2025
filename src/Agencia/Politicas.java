@@ -59,9 +59,28 @@ public class Politicas {
             default: return true;
         }
     }
-
+    
     private boolean manejarT2() {
         if (!permitirT2) return false;
+        return true;
+    }
+
+    private boolean manejarT3() {
+        if (!permitirT3) return false;
+        return true;
+    }
+
+    private boolean manejarT6() {
+        if (!permitirT6) return false;
+        return true;
+    }
+
+    private boolean manejarT7() {
+        if (!permitirT7) return false;
+        return true;
+    }
+
+    public void actualizarT2(){
         cantDisparosT2++;
 
         if (tipoPolitica == 1 && cantDisparosT2 >= cantDisparosT3) {
@@ -72,20 +91,14 @@ public class Politicas {
             permitirT3 = true;
             permitirT2 = false;
         }
-        return true;
     }
-
-    private boolean manejarT3() {
-        if (!permitirT3) return false;
+    public void actualizarT3(){
         cantDisparosT3++;
 
         permitirT2 = true;
         permitirT3 = false;
-        return true;
-    }
-
-    private boolean manejarT6() {
-        if (!permitirT6) return false;
+    }       
+    public void actualizarT6(){
         cantDisparosT6++;
 
         if (tipoPolitica == 1 && cantDisparosT6 >= cantDisparosT7) {
@@ -96,16 +109,12 @@ public class Politicas {
             permitirT7 = true;
             permitirT6 = false;
         }
-        return true;
     }
-
-    private boolean manejarT7() {
-        if (!permitirT7) return false;
+    public void actualizarT7(){
         cantDisparosT7++;
 
         permitirT6 = true;
         permitirT7 = false;
-        return true;
     }
 
     public String getNombre() {
