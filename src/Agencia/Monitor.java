@@ -84,20 +84,13 @@ public class Monitor implements MonitorInterface {
     }
 
     private static void liberarColaEntrada() {
-       /*if (colaEntrada.hasQueuedThreads()) {
-            System.out.println("Liberando cola de entrada.");
-            colaEntrada.release();
-        } else 
-            System.out.println("No hay hilos en cola de entrada.");{*/
         System.out.println("Liberando cola de entrada.");
         colaEntrada.release();
-         
     }
 
     private static boolean entrarMonitor(int t) {
         System.out.println("Entrando al monitor con transición: " + t);
         if(t == 20){ // es el hio gestor de las colas de transicion temporales...
-            
             boolean sePudoSenializar = intentarSenializar();
             liberarMutex();
             if (!sePudoSenializar) {

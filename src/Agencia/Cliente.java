@@ -19,25 +19,18 @@ public class Cliente implements Runnable{
 
 	@Override
 	public void run() {
-		//boolean estado1;
-		//boolean estado2;
 		if(tipo==1) {
 			while(true) {
 				for(int x: transicionesEntrada) {
-					//do{
-						monitor.fireTransition(x);
-						
-						getIn();
-					//}while(!estado1);
+					monitor.fireTransition(x);
+					getIn();
 				}
 			}
 		}else {
 			while(true) {
 				for(int x: transicionesSalida) {
-					//do{
-						monitor.fireTransition(x);
-						getOut();
-					//}while(!estado2);
+					monitor.fireTransition(x);
+					getOut();
 				}
 			}
 		}

@@ -19,11 +19,13 @@ public class Estadisticas implements Runnable {
 	private int porcentajeT7;
 	private String expresionRegular;
 	private static String cadena; 
+    private int canTransi;
 	
 
     public Estadisticas(RedDePetri redPetri) {
         transicionesDisparadas = new ArrayList<>();
         red = redPetri;
+        canTransi = 0;
         cantidadInvariantes = 0;
         porcentajeT2 = 0;
         porcentajeT3 = 0;
@@ -38,7 +40,7 @@ public class Estadisticas implements Runnable {
     @Override
     public void run() {
         System.out.println("Hilo de estadísticas iniciado");
-        try (FileWriter file = new FileWriter("log2.txt");
+        try (FileWriter file = new FileWriter("log.txt");
              PrintWriter pw = new PrintWriter(file)) {
             
             pw.printf("************** Inicio del registro: %s *********\n", new Date());
@@ -55,6 +57,7 @@ public class Estadisticas implements Runnable {
                 
                 actualizarDisparos();
                 actualizarStats();
+                
                 cantidadInvariantes = contarInvariantes(transicionesDisparadas, expresionRegular);
                 imprimir(pw);
             }
@@ -66,7 +69,15 @@ public class Estadisticas implements Runnable {
     }
 
     public void actualizarDisparos() {
-        transicionesDisparadas = new ArrayList<>(red.getTransicionesDisparadas());
+        ArrayList<Integer> disparos = red.getTransicionesDisparadas();
+        if (disparos == null) {
+            //System.out.println("Advertencia: La lista de transiciones disparadas es null.");
+            transicionesDisparadas = new ArrayList<>();
+        } else {
+            transicionesDisparadas = new ArrayList<>(disparos);
+        }
+        canTransi = transicionesDisparadas.size();
+       System.out.println("Cantidad de transiciones disparadas: " + canTransi);
     }
 
     public void actualizarStats() {
@@ -99,8 +110,8 @@ public class Estadisticas implements Runnable {
             pw.printf("La transicion T3 fue disparada %d%% de las veces\n", porcentajeT3);
             pw.printf("La transicion T6 fue disparada %d%% de las veces\n", porcentajeT6);
             pw.printf("La transicion T7 fue disparada %d%% de las veces\n", porcentajeT7);
-            pw.printf("La cantidad de invariantes disparados hasta el momento es: %d\n", cantidadInvariantes);
-
+            //pw.printf("La cantidad de invariantes disparados hasta el momento es: %d\n", cantidadInvariantes);
+            pw.printf("La cantidad de transiciones disparadas  es: %d\n", canTransi);
         }
         pw.flush();
     }

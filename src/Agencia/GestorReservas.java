@@ -1,7 +1,5 @@
 package Agencia;
 
-import java.util.concurrent.TimeUnit;
-
 public class GestorReservas implements Runnable {
 
 	private Monitor monitor;
@@ -17,24 +15,16 @@ public class GestorReservas implements Runnable {
 	
 	@Override
 	public void run() {
-		//boolean estado1;
-		//boolean estado2;
 		if(tipo==1) {
 			while(true) {
 				for(int x: transiciones1) {
-					//do{
 					monitor.fireTransition(x);
-					
-					//}while(!estado1);
 				}
 			}
 		}else {
 			while(true) {
 				for(int x: transiciones2) {
-					//do{
-						monitor.fireTransition(x);
-						
-					//}while(!estado2);
+					monitor.fireTransition(x);
 				}
 			}
 		}
