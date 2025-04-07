@@ -84,16 +84,27 @@ public class Monitor implements MonitorInterface {
     }
 
     private static void liberarColaEntrada() {
-       if (colaEntrada.hasQueuedThreads()) {
+       /*if (colaEntrada.hasQueuedThreads()) {
             System.out.println("Liberando cola de entrada.");
             colaEntrada.release();
-        } else {
-            System.out.println("No hay hilos en cola de entrada.");
-        } 
+        } else 
+            System.out.println("No hay hilos en cola de entrada.");{*/
+        System.out.println("Liberando cola de entrada.");
+        colaEntrada.release();
+         
     }
 
     private static boolean entrarMonitor(int t) {
         System.out.println("Entrando al monitor con transición: " + t);
+        if(t == 20){ // es el hio gestor de las colas de transicion temporales...
+            
+            boolean sePudoSenializar = intentarSenializar();
+            liberarMutex();
+            if (!sePudoSenializar) {
+                liberarColaEntrada();
+            }
+            return true;
+        }
         if (checkGeneral(t)) {
             System.out.println("Transición " + t + " pasó las verificaciones generales.");
             ejecutarDisparo(t);
@@ -103,7 +114,7 @@ public class Monitor implements MonitorInterface {
                 liberarColaEntrada();
             }
         } else {
-            System.out.println("Derivando a cola de condición.");
+            System.out.println("Transición " + t + " no pasó las verificaciones generales. Derivando a cola de condición.");
             derivarAColaCondicion(t);
             puertaMonitor(t);
         }
@@ -122,7 +133,7 @@ public class Monitor implements MonitorInterface {
         
         }else System.out.println("Transición " + t + " no es sensible.");
         
-        //System.out.println("Transición " + t + " no pasó las verificaciones.");
+        System.out.println("Transición " + t + " no pasó las verificaciones.");
         return false;
     }
 
