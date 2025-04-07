@@ -6,7 +6,7 @@ public class Main {
     public static final Monitor monitor = Monitor.getInstance();
 
     public static void main(String[] args){
-        Thread[] hilos = new Thread[19];
+        Thread[] hilos = new Thread[31];
         CrearPuestos(hilos);
         IniciarPuestos(hilos);
         IniciarEstadisticas();
@@ -24,51 +24,58 @@ public class Main {
     // -----------------------------------------------------------------------------------------------------------------
     // INICIO METODOS DE UTILIDAD:
 
-    /**
-     * @brief Creación de puestos de trabajo y asignación de hilos.
-     */
     private static void CrearPuestos(Thread[] hilos){
+        //gestor de colas de condicion
+        GestorColaCondicional gestorColaCondicional1 = new GestorColaCondicional();
+        hilos[0] = new Thread(gestorColaCondicional1); 
+        //hilos[0].setDaemon(true); // Configurar como daemon para que tenga el minimo de prioridad sin afectar al resto.
+
+    	//Hilos Cliente Entrante
         Cliente clienteEntrada1 = new Cliente(monitor, 1);
-        hilos[0] = new Thread(clienteEntrada1);  
-        Cliente clienteEntrada2 = new Cliente(monitor, 1);
-        hilos[1] = new Thread(clienteEntrada2); 
-        Cliente clienteEntrada3 = new Cliente(monitor, 1);
-        hilos[2] = new Thread(clienteEntrada3); 
-        Cliente clienteEntrada4 = new Cliente(monitor, 1);
-        hilos[3] = new Thread(clienteEntrada4); 
-        Cliente clienteSalida5 = new Cliente(monitor, 2);
-        hilos[4] = new Thread(clienteSalida5); 
-        Cliente clienteSalida6 = new Cliente(monitor, 2);
-        hilos[5] = new Thread(clienteSalida6);  
-        Cliente clienteSalida7 = new Cliente(monitor, 2);
-        hilos[6] = new Thread(clienteSalida7); 
+        hilos[1] = new Thread(clienteEntrada1);  
+        hilos[2] = new Thread(clienteEntrada1); 
+        hilos[3] = new Thread(clienteEntrada1); 
+        hilos[4] = new Thread(clienteEntrada1); 
+        hilos[5] = new Thread(clienteEntrada1);  
+        //Hilos Cliente Salient
+        Cliente clienteSalida2 = new Cliente(monitor, 2);
+        hilos[6] = new Thread(clienteSalida2); 
+        hilos[7] = new Thread(clienteSalida2);  
+        hilos[8] = new Thread(clienteSalida2); 
+        hilos[9] = new Thread(clienteSalida2); 
+        hilos[10] = new Thread(clienteSalida2); 
 
+        //Hilos Gestor 1
         GestorReservas gestor1 = new GestorReservas(monitor, 1);
-        hilos[7] = new Thread(gestor1);
-        GestorReservas gestor2 = new GestorReservas(monitor, 1);
-        hilos[8] = new Thread(gestor2); 
-        GestorReservas gestor3 = new GestorReservas(monitor, 1);
-        hilos[9] = new Thread(gestor3); 
-        GestorReservas gestor4 = new GestorReservas(monitor, 2);
-        hilos[10] = new Thread(gestor4);  
-        GestorReservas gestor5 = new GestorReservas(monitor, 2);
-        hilos[11] = new Thread(gestor5); 
-        GestorReservas gestor6 = new GestorReservas(monitor, 2);
-        hilos[12] = new Thread(gestor6); 
+        hilos[11] = new Thread(gestor1);
+        hilos[12] = new Thread(gestor1); 
+        hilos[13] = new Thread(gestor1); 
+        hilos[14] = new Thread(gestor1); 
+        hilos[15] = new Thread(gestor1); 
         
-
+        //Hilos Gestor 2
+        GestorReservas gestor2 = new GestorReservas(monitor, 2);
+        hilos[16] = new Thread(gestor2);  
+        hilos[17] = new Thread(gestor2); 
+        hilos[18] = new Thread(gestor2); 
+        hilos[19] = new Thread(gestor2); 
+        hilos[20] = new Thread(gestor2); 
+        
+        //Hilos Agente aprobacion de reserva
         Agente agente1 = new Agente(monitor, 1);
-        hilos[13] = new Thread(agente1);
-        Agente agente2 = new Agente(monitor, 1);
-        hilos[14] = new Thread(agente2);
-        Agente agente3 = new Agente(monitor, 1);
-        hilos[15] = new Thread(agente3);
-        Agente agente4 = new Agente(monitor, 2);
-        hilos[16] = new Thread(agente4);  
-        Agente agente5 = new Agente(monitor, 2);
-        hilos[17] = new Thread(agente5);
-        Agente agente6 = new Agente(monitor, 1);
-        hilos[18] = new Thread(agente6);
+        hilos[21] = new Thread(agente1);
+        hilos[22] = new Thread(agente1);
+        hilos[23] = new Thread(agente1);
+        hilos[24] = new Thread(agente1);
+        hilos[25] = new Thread(agente1);
+        
+        //Hilos Agente rechazo de reserva
+        Agente agente2 = new Agente(monitor, 2);
+        hilos[26] = new Thread(agente2);  
+        hilos[27] = new Thread(agente2);
+        hilos[28] = new Thread(agente2);
+        hilos[29] = new Thread(agente2);
+        hilos[30] = new Thread(agente2);
     }
 
     /**
