@@ -23,14 +23,25 @@ public class Cliente implements Runnable{
 	    if (tipo == 1) {
 	        while (!Thread.currentThread().isInterrupted()) {
 	            for (int x : transicionesEntrada) {
-	                monitor.fireTransition(x);
+					int i = 1;
+	                while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {
+	                	System.out.printf("[Cliente entrante] Intento numero %d de disparo transicion: %d \n",i,x);
+						i++;
+	                }
+					if(i==0) System.out.printf("Cliente entrante] Se disparo la transicion: %d en el primer intento",x);	
+					else System.out.printf("[Cliente entrante] Se disparo transicion: %d en el intento %d\n", x,i);
 	                getIn();
 	            }
 	        }
 	    } else {
 	        while (!Thread.currentThread().isInterrupted()) {
 	            for (int x : transicionesSalida) {
-	                monitor.fireTransition(x);
+					int i = 1;
+	            	while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {
+	                	System.out.printf("[Cliente saliente] Intento numero %d de disparo transicion: %d \n",i,x);
+	                }
+	                if(i==0) System.out.printf("Cliente saliente] Se disparo la transicion: %d en el primer intento",x);	
+					else System.out.printf("[Cliente saliente] Se disparo transicion: %d en el intento %d\n", x,i);
 	                getOut();
 	            }
 	        }
