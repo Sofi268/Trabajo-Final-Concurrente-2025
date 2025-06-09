@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class Monitor {
+public class Monitor implements MonitorInterface {
     private static Monitor uniqueInstance;
     private static RedDePetri rdp = RedDePetri.getInstance();
     // -------------------------------------------------------------------------------------------------
