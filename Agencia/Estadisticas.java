@@ -65,12 +65,14 @@ public class Estadisticas implements Runnable {
                 
                 actualizarDisparos();
                 actualizarStats();
+                pw.printf("Vuelta %d, cantidad de T0: %d\n", i, Rpd.getDisparosT0());
                 pw.printf("Vuelta %d, cantidad de T11: %d\n", i, Rpd.getDisparosT11());
                 imprimir(pw);
                 i++;
             }
             pw.printf("Finalizando registro. Se han disparado %d transiciones.\n", canTransi);
             pw.flush();
+            writeTransitions();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -95,7 +97,7 @@ public class Estadisticas implements Runnable {
         int disparosT7 = Rpd.getDisparosT7();
         int disparosT11 = Rpd.getDisparosT11();
 
-        if(disparosT11 >= 4){
+        if(disparosT11 >= 18){
             setStop();
             System.out.println("SE ESTA DETENIENDO EL HILO DE ESTADISTICAS");
         } 
