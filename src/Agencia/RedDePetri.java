@@ -41,7 +41,7 @@ public class RedDePetri {
     //private static Long[] timeStamp = new Long[Constantes.cantidadTransiciones]; //Tiempos de sensibilizado de cada transición
     //private static long tiempoInicio; //Tiempo de inicio del sistema
     //private static boolean primeraCopia = true; // Para saber si es la primera vez que se llama a sensibilizarT()
-    private static Politicas politica = Politicas.getInstance("Balanceada"); // "Balanceada" o "Prioridad".
+    private static Politicas politica = Politicas.getInstance("Prioridad"); // "Balanceada" o "Prioridad".
     public static final int MAX_CLIENTES = 18;
     //verificarr--- fin
 
@@ -107,6 +107,13 @@ public class RedDePetri {
         for (int j = 0; j < transiciones; j++) {
             boolean sensibilizada = true;
             // Verifica para cada plaza si tiene suficientes tokens para disparar la transición
+            if(j==2 || j==3 || j==6 || j==7) { // Transiciones con condiciones especiales
+                if (!politica.sePuedeDisparar(j)) {
+                    sensibilizada = false;
+                    transicionSensible[j] = 0; // No está sensibilizada
+                    continue;
+                }
+            }   
             for (int i = 0; i < plazas; i++) {
                 if (matrizIncidencia[i][j] < 0 && marcadoActual[i] + matrizIncidencia[i][j] < 0) {
                     sensibilizada = false;
@@ -141,7 +148,6 @@ public class RedDePetri {
             System.out.println("La transición " + t + " no está sensibilizada.");
             return false;
         }
-        
         else{
             setSecuencia(t);
             System.out.println("Disparando transición " + t);
