@@ -38,7 +38,9 @@ public class Main {
 				e.printStackTrace();
 			}
         }
-        System.out.println("Programa finalizado correctamente.");
+
+        System.out.println("\nPrograma finalizado correctamente.\n");
+
     }
 // -----------------------------------------------------------------------------------------------------------------
     
