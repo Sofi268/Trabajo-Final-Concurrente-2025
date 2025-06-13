@@ -42,7 +42,7 @@ public class RedDePetri {
     //private static long tiempoInicio; //Tiempo de inicio del sistema
     //private static boolean primeraCopia = true; // Para saber si es la primera vez que se llama a sensibilizarT()
     private static Politicas politica = Politicas.getInstance("Prioridad"); // "Balanceada" o "Prioridad".
-    public static final int MAX_CLIENTES = 18;
+    private boolean fin = false;
     //verificarr--- fin
 
     public RedDePetri(){ 
@@ -144,37 +144,45 @@ public class RedDePetri {
      * @param t numero de transicion 
      */
     public boolean disparar(int t) {
-        if (!isSensible(t)) {
-            System.out.println("La transición " + t + " no está sensibilizada.");
-            return false;
+        if(!fin){
+            if (!isSensible(t)) {
+                System.out.println("La transición " + t + " no está sensibilizada.");
+                return false;
+            }
+            else{
+                setSecuencia(t);
+                System.out.println("Disparando transición " + t);
+                actualizarMarcado();
+                transicionesDisparadas.add(t);
+                System.out.println("Marcado actual: " + java.util.Arrays.toString(marcadoActual));
+                sensibilizarT();
+                if(t==0) disparosT0++;
+                if(t==11) disparosT11++;
+                if(t==2){
+                    disparosT2++;
+                    politica.actualizarT2();
+                }
+                if(t==3){
+                    disparosT3++;
+                    politica.actualizarT3();
+                }
+                if(t==6){
+                    disparosT6++;
+                    politica.actualizarT6();
+                }
+                if(t==7){
+                    disparosT7++;
+                    politica.actualizarT7();
+                }
+                comprobarInvariantes();
+                return true;
+            }
         }
-        else{
-            setSecuencia(t);
-            System.out.println("Disparando transición " + t);
-            actualizarMarcado();
-            transicionesDisparadas.add(t);
-            System.out.println("Marcado actual: " + java.util.Arrays.toString(marcadoActual));
-            sensibilizarT();
-            if(t==0) disparosT0++;
-            if(t==11) disparosT11++;
-            if(t==2){
-                disparosT2++;
-                politica.actualizarT2();
-            }
-            if(t==3){
-                disparosT3++;
-                politica.actualizarT3();
-            }
-            if(t==6){
-                disparosT6++;
-                politica.actualizarT6();
-            }
-            if(t==7){
-                disparosT7++;
-                politica.actualizarT7();
-            }
-            comprobarInvariantes(t);
-            return true;
+        else {
+            comprobarInvariantes();
+            imprimirMarcado();
+            System.out.println("La red de Petri ha finalizado, no se pueden disparar más transiciones.");
+            return false;
         }
     }
     
@@ -200,7 +208,7 @@ public class RedDePetri {
      * @brief Comprueba que se cumplan los invariantes de plaza luego de un disparo
      * @param t numero de disparo realizado
      */
-    private void comprobarInvariantes(int t) {    	
+    public void comprobarInvariantes() {    	
     	boolean cumpleTodos = true;
         for (int i = 0; i < invariantes.length; i++) {
             int suma = 0;
@@ -212,7 +220,7 @@ public class RedDePetri {
                 cumpleTodos = false;
             }
         }
-        if(cumpleTodos)System.out.println("Se cumplen todos los invariantes luego del disparo de: T" + t);
+        if(cumpleTodos)System.out.println("Se cumplen todos los invariantes luego del disparo" );
     }
     
     /**
@@ -240,9 +248,11 @@ public class RedDePetri {
     public Integer[] getMarcadoActual() {
     	return marcadoActual;
     }
+
     public int getDisparosT0() {
     	return disparosT0;
     }
+
     public int getDisparosT11() {
     	return disparosT11;
     }
@@ -262,57 +272,12 @@ public class RedDePetri {
     public int getDisparosT7() {
     	return disparosT7;
     }
-    //------------------------------------------------------------------------------------
-    // Disparos temporales:
-    // private static Long getTiempoActual() {
-    //     return System.currentTimeMillis() - tiempoInicio; // Tiempo relativo desde el inicio
-    // }
-    // /**
-    //  * Al momento de crearse la red, inicia todos los tiempos de sensibilizado en 0
-    //  */
-    // public static void setCtesTiempo(){
-    //     for (int i = 0; i < Constantes.cantidadTransiciones; i++) {
-    //         timeStamp[i] = getTiempoActual();//System.currentTimeMillis();
-    //     }
-    // }
-    // /**Obtiene las transiciones que han sido hablitadas y calcula el tiempo desde que desde que esta se sensiblizó y en base a eso, comprueba si se puede disparar
-    //  * chequeando los intervalos de tiempo configurados con alfa y beta:
-    //  * tMin =< tActual => tMax : La transición se puede disparar
-    //  * tActual < tMin : El hilo se va a dormir hasta que entre en el intervalo de tiempo de sensiblizado, soltando el mutex. Luego que transcurre este tiempo,
-    //  * intenta tomar el mutex para comprobar que aún se encuentre en el intervalo mencionado. sino, ocurre el siguiente caso:
-    //  * tActual > tMin : La transición no se dispara y el hilo sale del monitor sin dispararla
-    //  * @param T: Transición a disparar
-    //  * @return 0 si está dentro del intervalo temporal, null si se pasó o un valor que indica el tiempo que se tiene que dormir
-    //  */
-    // public Long tiempoSensibilizado(Integer t){
-    //     Long tActual = getTiempoActual();
-    //         System.out.println("---Tiempo actual: " + tActual +" ms");
-    //     Long tMin = timeStamp[t] + Constantes.ALFA ;
-    //         System.out.println("---Tiempo mínimo: " + tMin +" ms");
-    //     Long tMax = timeStamp[t] + Constantes.BETA;
-    //         System.out.println("---Tiempo máximo: " + tMax +" ms");
-    //     if ((tActual >= tMin) && (tActual <= tMax)){  // Se encuentra dentro del intervalo temporal
-    //         return 0L;
-    //     }else if (tActual<tMin) {          // Se encuentra antes del intervalo temporal
-    //         return tMin - tActual;
-    //     }else{                             // Se encuentra después del intervalo temporal
-    //         return null; // Se pasó de la ventana
-    //     }
-    // }
-    // /**
-    //  * @return tiempos de sensibilizados de cada transición
-    //  */
-    // public Long[] getTimeStamp(){
-    //     return timeStamp;
-    // }
-    // /**
-    //  * Actualiza los timeStaps de las transiciones que pasaron de no sensibilizadas a sensibilizadas
-    //  */
-    // public static void setTimeStamp() {
-    //     for (int i = 0; i < Constantes.cantidadTransiciones; i++) {
-    //         if(transicionSensibleAnterior[i] == 0 && transicionSensible[i] == 1){ // Si la transición pasó de no sensibilizada a sensibilizada
-    //             timeStamp[i] = getTiempoActual();
-    //         }
-    //     }
-    // }
+
+    public void setFin(){
+        fin = true;
+    }
+    public void imprimirMarcado(){
+        System.out.println("Marcado actual: " + java.util.Arrays.toString(marcadoActual));
+    }
 }
+    
