@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Estadisticas implements Runnable {
     private static Estadisticas uniqueInstance;
-    public static RedDePetri Rpd = RedDePetri.getInstance();
+    public static RedDePetri rdp = RedDePetri.getInstance();
     public static final Monitor monitor = Monitor.getInstance();
 
     private static ArrayList<Integer> transicionesDisparadas;
@@ -67,8 +67,8 @@ public class Estadisticas implements Runnable {
 
                 actualizarDisparos();
                 actualizarStats();
-                pw.printf("Vuelta %d, cantidad de T0: %d\n", i, Rpd.getDisparosT0());
-                pw.printf("Vuelta %d, cantidad de T11: %d\n", i, Rpd.getDisparosT11());
+                pw.printf("Vuelta %d, cantidad de T0: %d\n", i, rdp.getDisparosT0());
+                pw.printf("Vuelta %d, cantidad de T11: %d\n", i, rdp.getDisparosT11());
                 imprimir(pw);
                 i++;
                 writeTransitions();
@@ -78,8 +78,11 @@ public class Estadisticas implements Runnable {
                 if (invariantes >= MAX_INVARIANETS) {
                     setStop();
                     System.out.println("✅ Se alcanzaron los invariantes. Deteniendo el sistema.");
+                    rdp.setFin();
+                    
                 }
             }
+            
             System.out.println("SE ESTA DETENIENDO EL HILO DE ESTADISTICAS");
 
             pw.printf("Finalizando registro. Se han disparado %d transiciones.\n", canTransi);
@@ -91,7 +94,7 @@ public class Estadisticas implements Runnable {
     }
 
     private void actualizarDisparos() {
-        ArrayList<Integer> disparos = Rpd.getTransicionesDisparadas();
+        ArrayList<Integer> disparos = rdp.getTransicionesDisparadas();
         if (disparos == null) {
             System.out.println("Advertencia: La lista de transiciones disparadas es null.");
             transicionesDisparadas = new ArrayList<>();
@@ -103,10 +106,10 @@ public class Estadisticas implements Runnable {
     }
 
     private void actualizarStats() {
-        int disparosT2 = Rpd.getDisparosT2();
-        int disparosT3 = Rpd.getDisparosT3();
-        int disparosT6 = Rpd.getDisparosT6();
-        int disparosT7 = Rpd.getDisparosT7();
+        int disparosT2 = rdp.getDisparosT2();
+        int disparosT3 = rdp.getDisparosT3();
+        int disparosT6 = rdp.getDisparosT6();
+        int disparosT7 = rdp.getDisparosT7();
 
         int totalT23 = disparosT2 + disparosT3;
         int totalT67 = disparosT6 + disparosT7;
@@ -196,6 +199,9 @@ private int contarInvariantes() {
     }
     return cantidad;
 }
+
+
+
     private void setStop() {
         stop = true;
     }
