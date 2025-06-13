@@ -8,7 +8,6 @@ public class Monitor implements MonitorInterface{
     private static Monitor uniqueInstance;
     private static RedDePetri rdp = RedDePetri.getInstance();
     // -------------------------------------------------------------------------------------------------
-    private static Politicas politica;  // a prriori se setea que tio de politica se usara.
     private static Semaphore mutex = new Semaphore(1, true);
     private static Semaphore[] colasCondicion; // Colas de condición para cada transición
     private static boolean[] colasConHilos; // Cantidad de hilos en cada cola de condición
@@ -28,13 +27,12 @@ public class Monitor implements MonitorInterface{
 // -------------------------------------------------------------------------------------------------
     public static void startMonitor() {
         System.out.println("Iniciando Monitor...");
-        politica = Politicas.getInstance("Balanceada"); // "Balanceada" o "Prioridad".
         colasCondicion = new Semaphore[rdp.getTransiciones()];
         colasConHilos = new boolean[rdp.getTransiciones()];
         ultimoOrden = -1;
         for (int i = 0; i < rdp.getTransiciones(); i++) {
             colasCondicion[i] = new Semaphore(0);
-            colasConHilos[i] = false; // Inicializa todas las colas como vacías.
+            colasConHilos[i] = false; 
         }
         System.out.println("Monitor inicializado con " + rdp.getTransiciones() + " transiciones.");
     }
@@ -54,7 +52,7 @@ public class Monitor implements MonitorInterface{
             System.out.println("Mutex adquirido.");
         } catch (InterruptedException e) {
             System.out.println("Error al adquirir mutex.");
-            Thread.currentThread().interrupt(); // <-- importante: reestablece el flag de interrupción
+            Thread.currentThread().interrupt(); 
         }
     }
 
@@ -108,6 +106,5 @@ public class Monitor implements MonitorInterface{
         }
         return false;
     }
-
 
 }
