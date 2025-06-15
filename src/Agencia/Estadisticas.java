@@ -75,7 +75,7 @@ public class Estadisticas implements Runnable {
                 invariantes = contarInvariantes();
                 pw.printf("Hay: %d invariantes\n",invariantes);
                 System.out.printf("Se alcanzaron %d invariantes\n\n", invariantes);
-                if (invariantes >= 3) {
+                if (invariantes >= MAX_INVARIANTES) {
                     setStop();
                     System.out.println("Se alcanzaron los invariantes. Deteniendo el sistema.");
                     rdp.setFin();
