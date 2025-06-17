@@ -11,7 +11,7 @@ public class CheckInvariants {
         try {
             String texto = new String(Files.readAllBytes(Paths.get("logTransiciones.txt")));
 
-            String regex = "(.*?)(T0)(.*?)(T1)(.*?)((T2)(.*?)(T5)|(T3)(.*?)(T4))(.*?)((T6)(.*?)(T9)(.*?)(T10)|(T7)(.*?)(T8))(.*?)(T11)(.*?)";
+            String regex = "(.*?)(T0)(.*?)(T1)(.*?)((T2)(.*?)(T5)|(T3)(.*?)(T4))(.*?)((T6)(.*?)(T9)(.*?)(T10)|(T7)(.*?)(T8))(.*?)(T11)";
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher;
 
