@@ -27,7 +27,8 @@ public class Main {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.out.println("Error al esperar los hilos.");
-        }       
+        }
+               
         monitor.setFin(); 
         finalizacionHilos(hilos);
 
@@ -55,32 +56,27 @@ public class Main {
         //Hilos Cliente Entrante
         Cliente clienteEntrada1 = new Cliente(monitor, 1);
         hilos[0] = new Thread(clienteEntrada1);  
-        //hilos[1] = new Thread(clienteEntrada1);   
 
         //Hilos Cliente Saliente
         Cliente clienteSalida2 = new Cliente(monitor, 2);
         hilos[1] = new Thread(clienteSalida2); 
-        //hilos[3] = new Thread(clienteSalida2);   
 
         //Hilos Gestor 1
         GestorReservas gestor1 = new GestorReservas(monitor, 1);
         hilos[2] = new Thread(gestor1);
-        //hilos[5] = new Thread(gestor1); 
-        
+
         //Hilos Gestor 2
         GestorReservas gestor2 = new GestorReservas(monitor, 2);
         hilos[3] = new Thread(gestor2);  
-        //hilos[7] = new Thread(gestor2); 
         
         //Hilos Agente aprobacion de reserva
         Agente agente1 = new Agente(monitor, 1);
         hilos[4] = new Thread(agente1);
-        //hilos[9] = new Thread(agente1);
         
         //Hilos Agente rechazo de reserva
         Agente agente2 = new Agente(monitor, 2);
         hilos[5] = new Thread(agente2);  
-        //hilos[11] = new Thread(agente2);
+
     }
     
     /* */
