@@ -29,7 +29,6 @@ public class Main {
             System.out.println("Error al esperar los hilos.");
         }
                
-        monitor.setFin(); 
         finalizacionHilos(hilos);
 
         for (Thread hilo : hilos) {
