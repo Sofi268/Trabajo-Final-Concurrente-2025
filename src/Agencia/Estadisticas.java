@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class Estadisticas implements Runnable {
-    private static Estadisticas uniqueInstance;
+    public static Estadisticas uniqueInstance;
     public static RedDePetri rdp = RedDePetri.getInstance();
     public static final Monitor monitor = Monitor.getInstance();
 
