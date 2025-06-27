@@ -1,3 +1,7 @@
+/**
+ * @file GestorReservas.java
+ * @brief Modela el comportamiento de un empleado de la agencia de viajes encargado de gestionar reservas
+ */
 package Agencia;
 
 import java.util.concurrent.TimeUnit;
@@ -18,23 +22,27 @@ public class GestorReservas implements Runnable {
 	@Override
 	public void run() {
 		if(tipo==1) {
-			while(!Thread.currentThread().isInterrupted()) {
+			while(!Thread.currentThread().isInterrupted() && !monitor.isFin()) {
 				for(int x: transiciones1) {
-					while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {}
+					if(monitor.isFin() || Thread.currentThread().isInterrupted()) return; 
+					while(!monitor.fireTransition(x) && !Thread.currentThread().isInterrupted() && !monitor.isFin()) {}
 					reservar();
 				}
 			}
-		}	       
-		else {
-			while(!Thread.currentThread().isInterrupted()) {
+		}else {
+			while(!Thread.currentThread().isInterrupted() && !monitor.isFin()) {
 				for(int x: transiciones2) {
-					while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {}
+					if(monitor.isFin() || Thread.currentThread().isInterrupted()) return; 
+					while(!monitor.fireTransition(x) && !Thread.currentThread().isInterrupted() && !monitor.isFin()) {}
 					reservar();
 				}
 			}
 		}
 	}
 
+	/**
+	 * @brief Simula la reserva de viaje con una breve espera
+	 */
 	private void reservar() {
 		try {
 			TimeUnit.MILLISECONDS.sleep(10);
@@ -42,4 +50,5 @@ public class GestorReservas implements Runnable {
             Thread.currentThread().interrupt(); 
         }
 	}
+
 }

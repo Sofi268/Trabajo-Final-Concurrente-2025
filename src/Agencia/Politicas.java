@@ -1,3 +1,9 @@
+/**
+ * @file Politicas.java
+ * @brief Clase que implementa diferentes politicas para el disparo de transiciones en la Red de Petri
+ *
+ * Controla cuándo se puede disparar cada transicion segun la politica seleccionada (Balanceada o Prioridad)
+ */
 package Agencia;
 
 public class Politicas {
@@ -31,6 +37,12 @@ public class Politicas {
         else System.out.println("No existe esa politica");
     }
 
+    /**
+     * @brief Retorna la instancia única de Politicas (singleton).
+     * 
+     * @param politica nombre de la política a instanciar
+     * @return instancia única de Politicas
+     */
     public static Politicas getInstance(String politica) { //mejorar:  hacer con un enum.
         if (uniqueInstance == null){
             System.out.println("Instanciando Politicas...");
@@ -41,14 +53,22 @@ public class Politicas {
         return uniqueInstance;
     }
 
+    // Inicializa política balanceada
     private void iniciarPoliticaBalanceada(){
         tipoPolitica = 1;
     }
 
+    // Inicializa política de prioridad
     private void iniciarPoliticaPrioridad(){
         tipoPolitica = 2;
     }
 
+    /**
+     * @brief Consulta si se puede disparar una transicion segun la politica activa
+     * 
+     * @param t numero de transicion
+     * @return true si esta permitido disparar, false en caso contrario
+     */
     public boolean sePuedeDisparar(int t) {
         switch (t) {
             case 2: return manejarT2();
@@ -58,7 +78,9 @@ public class Politicas {
             default: return true;
         }
     }
-    
+    //---------------------------------------------------------------------------------------------------------
+    // Metodos para manejo y actualizacion individual de cada transición (T2, T3, T6, T7)
+
     private boolean manejarT2() {
         if (!permitirT2) return false;
         return true;
@@ -91,12 +113,14 @@ public class Politicas {
             permitirT2 = false;
         }
     }
+
     public void actualizarT3(){
         cantDisparosT3++;
 
         permitirT2 = true;
         permitirT3 = false;
-    }       
+    }     
+
     public void actualizarT6(){
         cantDisparosT6++;
 
@@ -109,6 +133,7 @@ public class Politicas {
             permitirT6 = false;
         }
     }
+
     public void actualizarT7(){
         cantDisparosT7++;
 
@@ -116,6 +141,13 @@ public class Politicas {
         permitirT7 = false;
     }
 
+    //---------------------------------------------------------------------------------------------------------
+
+    /**
+     * @brief Obtiene el nombre de la política activa.
+     * 
+     * @return nombre de la política
+     */
     public String getNombre() {
         return nombre;
     }    

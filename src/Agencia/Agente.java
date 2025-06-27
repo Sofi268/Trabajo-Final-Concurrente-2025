@@ -20,23 +20,28 @@ public class Agente implements Runnable {
 	@Override
 	public void run() {
 		if(tipo==1) {
-			while(!Thread.currentThread().isInterrupted()) {
+			while(!Thread.currentThread().isInterrupted() && !monitor.isFin()) {
 				for(int x: transiciones1) {
-					while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {}
+					if(monitor.isFin() || Thread.currentThread().isInterrupted()) return; 
+					while(!monitor.fireTransition(x) && !Thread.currentThread().isInterrupted() && !monitor.isFin()) {}
 					confirmarReserva();
 				}
 			}
 		}	       
 		else {
-			while(!Thread.currentThread().isInterrupted()) {
+			while(!Thread.currentThread().isInterrupted() && !monitor.isFin()) {
 				for(int x: transiciones2) {
-	            	while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {}
+					if(monitor.isFin() || Thread.currentThread().isInterrupted()) return; 
+					while(!monitor.fireTransition(x) && !Thread.currentThread().isInterrupted() && !monitor.isFin()) {}
 					rechazarReserva();
 				}
 			}
 		}
 	}
 
+	/**
+	 * @brief Simula la confirmación de una reserva con una breve espera
+	 */
 	private void confirmarReserva() {
 		try {
 			TimeUnit.MILLISECONDS.sleep(10);
@@ -45,6 +50,9 @@ public class Agente implements Runnable {
         }
 	}
 
+	/**
+	 * @brief Simula el rechazo de una reserva con una breve espera
+	 */
 	private void rechazarReserva() {
 		try {
 			TimeUnit.MILLISECONDS.sleep(10);

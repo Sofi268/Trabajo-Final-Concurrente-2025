@@ -1,6 +1,6 @@
 /**
  * @file Cliente.java
- * @brief Modela el comportamiento de un cliente en la agencia
+ * @brief Modela el comportamiento de un cliente en la agencia tanto al ingresar como al salir
  */
 package Agencia;
 
@@ -10,41 +10,48 @@ public class Cliente implements Runnable{
 	private int[] transicionesEntrada= {0,1};	
 	private int[] transicionesSalida= {11};	
 	int tipo;
-	boolean terminar;
 
 	public Cliente(Monitor monitor, int tipo) {
 		this.monitor = monitor;
 		this.tipo = tipo;
-		terminar = false;
 	}
 
 	@Override
 	public void run() {
 	    if (tipo == 1) {
-	        while (!Thread.currentThread().isInterrupted()) {
-	            for (int x : transicionesEntrada) {
-					while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {}
-					getIn();
-	            }
-	        }
+	        while(!Thread.currentThread().isInterrupted() && !monitor.isFin()) {
+				for(int x: transicionesEntrada) {
+					if(monitor.isFin() || Thread.currentThread().isInterrupted()) return; 
+					while(!monitor.fireTransition(x) && !Thread.currentThread().isInterrupted() && !monitor.isFin()) {}
+					entrar();
+				}
+			}
 	    } else {
-	        while (!Thread.currentThread().isInterrupted()) {
-	            for (int x : transicionesSalida) {
-					while(!monitor.fireTransition(x)&&!Thread.currentThread().isInterrupted()) {}
-	                getOut();
-	            }
-	        }
+	        while(!Thread.currentThread().isInterrupted() && !monitor.isFin()) {
+				for(int x: transicionesSalida) {
+					if(monitor.isFin() || Thread.currentThread().isInterrupted()) return; 
+					while(!monitor.fireTransition(x) && !Thread.currentThread().isInterrupted() && !monitor.isFin()) {}
+					salir();
+				}
+			}
 	    }
 	}
 
-	private void getIn() {
+	/**
+	 * @brief Simula el ingreso del cliente con una breve espera
+	 */
+	private void entrar() {
 		try {
 			TimeUnit.MILLISECONDS.sleep(10);
 		} catch (InterruptedException e) {
             Thread.currentThread().interrupt(); 
         }
 	}
-	private void getOut() {
+	
+	/**
+	 * @brief Simula la salida del cliente con una breve espera
+	 */
+	private void salir() {
 		try {
 			TimeUnit.MILLISECONDS.sleep(10);
 		} catch (InterruptedException e) {

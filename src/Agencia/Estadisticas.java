@@ -1,20 +1,22 @@
+/**
+* @file Estadisticas.java
+* @brief Clase encargada de recolectar, calcular y registrar estadísticas del sistema en ejecución
+* Registra transiciones disparadas, porcentajes de uso, e invoca la verificación de invariantes
+*/
 package Agencia;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class Estadisticas implements Runnable {
-    private static Estadisticas uniqueInstance;
+    public static Estadisticas uniqueInstance;
     public static RedDePetri rdp = RedDePetri.getInstance();
     public static final Monitor monitor = Monitor.getInstance();
-    public CheckInvariants checkInvariants = new CheckInvariants();
 
     private static ArrayList<Integer> transicionesDisparadas;
     private static int porcentajeT2;
@@ -27,6 +29,9 @@ public class Estadisticas implements Runnable {
 
     public Estadisticas() {}
 
+    /**
+     * @brief Devuelve la instancia única de Estadisticas. Si no existe, la crea e inicializa
+     */
     public static Estadisticas getInstance() {
         if (uniqueInstance == null) {
             System.out.println("Instanciando Estadisticas...");
@@ -36,6 +41,9 @@ public class Estadisticas implements Runnable {
         return uniqueInstance;
     }
 
+    /**
+     * @brief Inicializa las variables necesarias para comenzar a recolectar estadísticas
+     */
     public static void startEstadisticas() {
         System.out.println("Estadistico creado.");
         transicionesDisparadas = new ArrayList<>();
@@ -55,7 +63,6 @@ public class Estadisticas implements Runnable {
 
             pw.printf("************** Inicio del registro: %s *********\n", new Date());
             pw.flush();
-            int i = 1;
             int invariantes = 0;
             while (!stop) {
                 try {
@@ -68,10 +75,9 @@ public class Estadisticas implements Runnable {
 
                 actualizarDisparos();
                 actualizarStats();
-                pw.printf("Vuelta %d, cantidad de T0: %d\n", i, rdp.getDisparosT0());
-                pw.printf("Vuelta %d, cantidad de T11: %d\n", i, rdp.getDisparosT11());
+                pw.printf("Cantidad de T0: %d\n", rdp.getDisparosT0());
+                pw.printf("Cantidad de T11: %d\n", rdp.getDisparosT11());
                 imprimir(pw);
-                i++;
                 writeTransitions();
                 invariantes = contarInvariantes();
                 pw.printf("Hay: %d invariantes\n",invariantes);
@@ -83,7 +89,7 @@ public class Estadisticas implements Runnable {
                 }
             }
             
-            System.out.println("SE ESTA DETENIENDO EL HILO DE ESTADISTICAS");
+            System.out.println("\nSE ESTA DETENIENDO EL HILO DE ESTADISTICAS\n");
 
             pw.printf("Finalizando registro. Se han disparado %d transiciones.\n", canTransi);
             pw.flush();
@@ -94,6 +100,9 @@ public class Estadisticas implements Runnable {
         }
     }
 
+    /**
+     * @brief Actualiza la lista de transiciones disparadas desde la red de Petri
+     */
     private void actualizarDisparos() {
         ArrayList<Integer> disparos = rdp.getTransicionesDisparadas();
         if (disparos == null) {
@@ -106,6 +115,9 @@ public class Estadisticas implements Runnable {
         System.out.println("Cantidad de transiciones disparadas: " + canTransi);
     }
 
+    /**
+     * @brief Calcula los porcentajes de disparo de T2/T3 y T6/T7
+     */
     private void actualizarStats() {
         int disparosT2 = rdp.getDisparosT2();
         int disparosT3 = rdp.getDisparosT3();
@@ -122,12 +134,14 @@ public class Estadisticas implements Runnable {
 
     }
 
+    /**
+     * @brief Imprime las transiciones disparadas y porcentajes al archivo de estadísticas
+     */
     private void imprimir(PrintWriter pw) {
         if (transicionesDisparadas == null || transicionesDisparadas.isEmpty()) {
             pw.printf("No hay transiciones disparadas aún.\n");
         } else {
             pw.printf("Transiciones disparadas: %s\n", transicionesDisparadas.toString());
-
             pw.printf("La transicion T2 fue disparada %d%% de las veces\n", porcentajeT2);
             pw.printf("La transicion T3 fue disparada %d%% de las veces\n", porcentajeT3);
             pw.printf("La transicion T6 fue disparada %d%% de las veces\n", porcentajeT6);
@@ -138,8 +152,7 @@ public class Estadisticas implements Runnable {
     }
 
     /**
-     * Método que se puede llamar al finalizar el sistema para
-     * escribir todas las transiciones restantes y hacer la verificación final.
+     * @brief Al finalizar el sistema escribe todas las transiciones restantes y hacer la verificación final
      */
     public void verificacionFinal() {
         writeTransitions();
@@ -148,8 +161,7 @@ public class Estadisticas implements Runnable {
     }
 
     /**
-     * Escribe la secuencia completa de transiciones disparadas en logTransiciones.txt
-     * agregando al final (append), para no perder información previa.
+     * @brief Escribe la secuencia de transiciones disparadas en logTransiciones.txt una vez que se alcanzaron los invariantes
      */
     private void writeTransitions() {
         File logFile = new File("logTransiciones.txt");
@@ -165,13 +177,16 @@ public class Estadisticas implements Runnable {
     }
 
     /**
-     * Invoca el script Python check_invariants.py pasando logTransiciones.txt
-     * para contar invariantes.
+     * @brief Llama a la función externa que cuenta los invariantes reconocidos en el log
+     * @return cantidad de invariantes detectados.
      */
     private int contarInvariantes() {
-        return checkInvariants.invariantes();
+        return CheckInvariants.invariantes();
     }
 
+    /**
+     * @brief Detiene el bucle de ejecución del hilo de estadísticas
+     */
     private void setStop() {
         stop = true;
     }

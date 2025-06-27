@@ -1,6 +1,9 @@
+/**
+ * @file Monitor.java
+ * @brief Monitor sincronizado que controla el acceso concurrente a la Red de Petri con una politica Signal and Continue
+ * Coordina hilos que disparan transiciones, manejando condiciones y prioridades 
+ */
 package Agencia;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -9,15 +12,19 @@ public class Monitor implements MonitorInterface{
     private static RedDePetri rdp = RedDePetri.getInstance();
     // -------------------------------------------------------------------------------------------------
     private static Semaphore mutex = new Semaphore(1, true);
-    private static Semaphore[] colasCondicion; // Colas de condición para cada transición
-    private static boolean[] colasConHilos; // Cantidad de hilos en cada cola de condición
-    private static int ultimoOrden; // Última transición que se desperto.
+    private static Semaphore[] colasCondicion; // Colas de condicion para cada transicion
+    private static boolean[] colasConHilos; // Cantidad de hilos en cada cola de condicion
+    private static int ultimoOrden; // Última transicion que se desperto.
     private static boolean finPrograma = false; // Indica si se ha solicitado finalizar el programa
     private static boolean colasLiberadas = false; // Indica si las colas han sido liberadas
     // -------------------------------------------------------------------------------------------------
     public Monitor(){
         System.out.println("Monitor creado.");
     }
+
+    /**
+     * @brief Retorna la instancia única del Monitor, inicializándolo si es necesario.
+     */
     public static Monitor getInstance() {
         if (uniqueInstance == null) {
             System.out.println("Instanciando Monitor...");
@@ -26,7 +33,10 @@ public class Monitor implements MonitorInterface{
         }
         return uniqueInstance;
     }
-// -------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------
+    /**
+     * @brief Inicializa estructuras internas del Monitor según la cantidad de transiciones.
+     */
     public static void startMonitor() {
         System.out.println("Iniciando Monitor...");
         colasCondicion = new Semaphore[rdp.getTransiciones()];
@@ -39,14 +49,21 @@ public class Monitor implements MonitorInterface{
         System.out.println("Monitor inicializado con " + rdp.getTransiciones() + " transiciones.");
     }
 
-    /* encargado de administrar el ingreso al monitor y la obtencion del mutex.
-    */
+    /**
+     * @brief Intenta disparar una transición. Administra mutex y lógica de entrada al monitor.
+     *
+     * @param transition número de transición a disparar
+     * @return true si se disparó o se encoló exitosamente, false si no fue posible
+     */
     public boolean fireTransition(int transition) {
         agarrarMutex();
-        System.out.println("Transición " + transition + " adquirió mutex.");
+        System.out.println("Transicion " + transition + " adquirio mutex.");
         return entrarMonitor(transition);
     }
-    
+
+    /**
+     * Intenta adquirir el mutex para entrar a la sección crítica
+     */
     private static void agarrarMutex() {
         try {
             mutex.acquire();
@@ -57,6 +74,9 @@ public class Monitor implements MonitorInterface{
         }
     }
 
+    /**
+     * @brief Libera el mutex 
+     */
     private static void liberarMutex() {
         if (mutex.availablePermits() == 0) {
             System.out.println("Liberando mutex.");
@@ -64,51 +84,12 @@ public class Monitor implements MonitorInterface{
         }
     }
 
-    // private static boolean entrarMonitor(int t) {
-    //     if(finPrograma){
-    //         if(!colasLiberadas) {
-    //             librerarColas(); 
-    //         }
-    //         System.out.println("Programa finalizado, no se puede entrar al monitor.");
-    //         liberarMutex();
-    //         return false; 
-    //     }
-
-    //     System.out.println("Entrando al monitor con transición: " + t);        
-
-    //     if (rdp.isSensible(t)) { //Se puede disparar
-    //         System.out.println("Transición " + t + " se puede disparar.");
-    //         if(ejecutarDisparo(t)) {
-    //             //Se  disparo la transición
-    //             boolean sePudoSenializar = intentarSenializar();
-    //             if (!sePudoSenializar) {
-    //                 liberarMutex();
-    //                 return true;
-    //             }
-    //             else{
-    //                 System.out.println("Se despertó una transición en cola de condición.");
-    //                 return true; 
-    //             }
-    //         }
-    //         else{
-    //             liberarMutex();
-    //             return false;
-    //         }
-    //     }
-    //     else{ //No se puede disparar
-    //         if(!colasConHilos[t]) { // Si hay un hilo esperando en la cola de condición
-    //             System.out.println("Transición " + t + " no es sensible, derivando a cola de condición.");
-    //             derivarAColaCondicion(t);
-    //             return entrarMonitor(t); // Volver a intentar entrar al monitor
-    //         } 
-    //         else { // Si no hay hilos esperando en la cola de condición
-    //             System.out.println("Transición " + t + " no es sensible, pero ya hay un hilo en la cola de condicion.");
-    //             liberarMutex();
-    //             return false; // No se pudo disparar y no hay hilos esperando
-    //         }
-    //     }
-    // }
-
+    /**
+     * @brief Logica principal de entrada al monitor. Evalua si se puede disparar y actua en consecuencia
+     *
+     * @param t transicion que se quiere disparar
+     * @return true si se se disparo, false en caso contrario
+     */
     private static boolean entrarMonitor(int t) {
         if(finPrograma){
             if(!colasLiberadas) {
@@ -125,14 +106,14 @@ public class Monitor implements MonitorInterface{
         switch(posibleDisparo){
             case 0: //Se puede disparar
                 if(ejecutarDisparo(t)) {
-                    //Se  disparo la transición
+                    //Se  disparo la transicion
                     boolean sePudoSenializar = intentarSenializar();
-                    if (!sePudoSenializar) { //No hay hilos en las colas de condición
+                    if (!sePudoSenializar) { //No hay hilos en las colas de condicion
                         liberarMutex();
                         return true;
                     }
-                    else{ //Se despertó un hilo en la cola de condición
-                        System.out.println("Se despertó una transición en cola de condición.");
+                    else{ //Se despertó un hilo en la cola de condicion
+                        System.out.println("Se desperto una transicion en cola de condicion.");
                         return true; 
                     }
                 }
@@ -143,16 +124,16 @@ public class Monitor implements MonitorInterface{
 
             case -1: //No se puede disparar, no es temporal
                 //Ver cola de condicion
-                if (!colasConHilos[t]) { //Si no hay hilos esperando en la cola de condición
+                if (!colasConHilos[t]) { //Si no hay hilos esperando en la cola de condicion
                     try {
                         derivarAColaCondicion(t);
                         return entrarMonitor(t);
 
                     } catch (RuntimeException e) {
-                        System.out.println("Error al esperar en la cola de condición.");
+                        System.out.println("Error al esperar en la cola de condicion.");
                         Thread.currentThread().interrupt(); 
                     }
-                } else { // Si hay un hilo esperando en la cola de condición
+                } else { // Si hay un hilo esperando en la cola de condicion
                     liberarMutex(); 
                     return false;
                 }
@@ -170,7 +151,7 @@ public class Monitor implements MonitorInterface{
                 }
 
                 else{
-                    System.out.println("ERROR: Transición " + t + " no es válida o no se puede disparar.\n");
+                    System.out.println("ERROR: Transicion " + t + " no es valida o no se puede disparar.\n");
                     liberarMutex();
                     System.exit(1);
                 }
@@ -180,17 +161,24 @@ public class Monitor implements MonitorInterface{
 
     //----------------------------------------------------------------------------------
     // metodos de utilidad para el monitor.
+
+    /**
+     * @brief Ejecuta el disparo de la transicion en la Red de Petri y verifica el marcado
+     */
     private static boolean ejecutarDisparo(int t) {
-        System.out.println("Intentando disparar transición " + t + "...");
+        System.out.println("Intentando disparar transicion " + t + "...");
         boolean disparo = rdp.disparar(t);
         if (tieneMarcadoNegativo()) {
             System.out.println("Error: Marcado negativo detectado tras disparar T" + t);
             System.exit(1);
         }
-        System.out.println("[OK] Transición " + t + " disparada exitosamente.");
+        System.out.println("[OK] Transicion " + t + " disparada exitosamente.");
         return disparo;
     }
 
+    /**
+     * @brief Verifica si el marcado actual tiene valores negativos (estado invalido).
+     */
     private static boolean tieneMarcadoNegativo() {
         System.out.println("Verificando marcado actual...");
         for (Integer valor : rdp.getMarcadoActual()) {
@@ -202,25 +190,35 @@ public class Monitor implements MonitorInterface{
         return false;
     }
     
+    /**
+     * @brief Intenta despertar un hilo en alguna cola de condicion, si es sensible
+     *
+     * @return true si se senialo a algún hilo, false si no habia hilos esperando
+     */
     private static boolean intentarSenializar() {
-        System.out.println("Buscando transiciones en cola de condición...");
+        System.out.println("Buscando transiciones en cola de condicion...");
         int tSiguiente = buscarEnColaCondicion();
         if (tSiguiente >= 0) {
-            señalizarSig(tSiguiente);
+            senializarSig(tSiguiente);
             return true;
         } else {
-            System.out.println("No hay transiciones en cola de condición.");
+            System.out.println("No hay transiciones en cola de condicion.");
             return false;
         }
     }
 
+    /**
+     * @brief Busca una transicion sensible con hilos en espera.
+     *
+     * @return indice de la transicion encontrada o -1 si ninguna esta disponible
+     */
     private static int buscarEnColaCondicion() {
-        System.out.println("Buscando en colas de condición...");
+        System.out.println("Buscando en colas de condicion...");
         System.out.print("Estado de colasConHilos: ");
         for (int i = 0; i < colasConHilos.length; i++) {
             System.out.print("T" + i + "=" + colasConHilos[i] + " ");
         }
-        System.out.println(); // salto de línea
+        System.out.println(); 
 
         int n = Constantes.cantidadTransiciones;
         int inicio = (ultimoOrden + 1) % n;
@@ -228,7 +226,7 @@ public class Monitor implements MonitorInterface{
         for (int i = inicio; i < n; i++) {
             if ((colasConHilos[i]) && rdp.isSensible(i)) {
                 ultimoOrden = i;
-                System.out.println("Encontrada transición en cola: " + i);
+                System.out.println("Encontrada transicion en cola: " + i);
                 return i;
             }
         }
@@ -236,35 +234,57 @@ public class Monitor implements MonitorInterface{
         for (int i = 0; i < inicio; i++) {
             if ((colasConHilos[i]) && rdp.isSensible(i)) {
                 ultimoOrden = i;
-                System.out.println("Encontrada transición en cola: " + i);
+                System.out.println("Encontrada transicion en cola: " + i);
                 return i;
             }
         }
 
-        System.out.println("No se encontraron transiciones en cola de condición.");
+        System.out.println("No se encontraron transiciones en cola de condicion.");
         return -1;
     }
 
-    private static void señalizarSig(int tSensible) {
-        System.out.println("Liberando hilo en cola de transición " + tSensible);
+    /**
+     * @brief Senializa y libera un hilo en espera para la transicion dada.
+     *
+     * @param tSensible transicion que sera senializada
+     */
+    private static void senializarSig(int tSensible) {
+        System.out.println("Liberando hilo en cola de transicion " + tSensible);
         colasConHilos[tSensible] = false; 
         colasCondicion[tSensible].release();
     }
 
+    /**
+     * @brief Encola la transicion indicada y bloquea el hilo hasta ser despertado
+     *
+     * @param t transición que no pudo dispararse y debe esperar
+     */
     private static void derivarAColaCondicion(int t) {
-        System.out.println("Colocando transición " + t + " en cola de condición...");
+        System.out.println("Colocando transicion " + t + " en cola de condicion...");
+        colasConHilos[t] = true;
+        liberarMutex();
+
+        if (finPrograma || Thread.currentThread().isInterrupted()) {
+            colasConHilos[t] = false;
+            System.out.println("Programa finalizado o hilo interrumpido, no se bloquea en cola de condicion.");
+            return;
+        }
+
         try {
-            colasConHilos[t]= true; 
-            liberarMutex();
             colasCondicion[t].acquire();
-            System.out.println("Hilo de transición " + t + " liberado de la cola.");
+            System.out.println("Hilo de transicion " + t + " liberado de la cola.");
         } catch (InterruptedException e) {
-            System.out.println("Error al derivar a cola de condición para transición " + t);
-            e.printStackTrace();
+            colasConHilos[t] = false;
+            System.out.println("Hilo interrumpido al esperar en cola (T" + t + ").");
+            Thread.currentThread().interrupt();
         }
     }
 
+    /**
+     * @brief Libera todos los hilos en espera. Se ejecuta una sola vez al finalizar el sistema
+     */
     private static void librerarColas() {
+        if (colasLiberadas) return;
         System.out.println("Finalizando Monitor...");
         for (int i = 0; i < colasCondicion.length; i++) {
             if (colasConHilos[i]) {
@@ -275,19 +295,40 @@ public class Monitor implements MonitorInterface{
         colasLiberadas = true; 
     }
 
+    /**
+     * @brief Solicita finalizar el programa
+     */
     public void setFin(){
         finPrograma = true; 
-        System.out.println("Se ha solicitado finalizar el programa. Liberando colas de condición...");
+        System.out.println("Se ha solicitado finalizar el programa. Liberando colas de condicion...");
     }
 
+    /**
+     * @brief Indica si se ha solicitado el fin del programa
+     * 
+     * @return true si se ha solicitado finalizar, false en caso contrario
+     */
+    public boolean isFin() {
+        return finPrograma;
+    }
+
+    /**
+     * @brief Duerme al hilo actual durante el tiempo especificado
+     *
+     * @param sensible tiempo de espera para que este en la ventana de disparo
+     */
     private static void dormirTemporal(int sensible) {
-        try{
+        if (finPrograma || Thread.currentThread().isInterrupted()) {
+            System.out.println("Programa finalizado o hilo interrumpido, no se duerme temporalmente.");
+            return;
+        }
+
+        try {
             System.out.println("Durmiendo temporalmente por " + sensible + " ms...\n");
             TimeUnit.MILLISECONDS.sleep(sensible);
-        }
-        catch (InterruptedException e) {
-            System.out.println("Error al dormir temporalmente.");
-            Thread.currentThread().interrupt(); 
+        } catch (InterruptedException e) {
+            System.out.println("Hilo interrumpido durante el sleep temporal.");
+            Thread.currentThread().interrupt();
         }
     }
 
