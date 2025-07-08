@@ -90,7 +90,7 @@ public class Monitor implements MonitorInterface{
      * @param t transicion que se quiere disparar
      * @return true si se se disparo, false en caso contrario
      */
-    private static boolean entrarMonitor(int t) {
+    private boolean entrarMonitor(int t) {
         if(finPrograma){
             if(!colasLiberadas) {
                 librerarColas(); 
@@ -101,7 +101,10 @@ public class Monitor implements MonitorInterface{
             liberarMutex();
             return false; 
         }
-
+        if(rdp.isFinalizado()){
+            setFin(); // Si la red de petri ya finalizó, no se puede entrar al monitor
+            return false;
+        } 
         int posibleDisparo = rdp.sePuedeDisparar(t);
         switch(posibleDisparo){
             case 0: //Se puede disparar
@@ -127,7 +130,12 @@ public class Monitor implements MonitorInterface{
                 if (!colasConHilos[t]) { //Si no hay hilos esperando en la cola de condicion
                     try {
                         derivarAColaCondicion(t);
-                        return entrarMonitor(t);
+                        if (finPrograma || Thread.currentThread().isInterrupted()) {
+                            System.out.println("Programa finalizado o hilo interrumpido");
+                            liberarMutex();
+                            return false;
+                        }
+                        else return entrarMonitor(t);
 
                     } catch (RuntimeException e) {
                         System.out.println("Error al esperar en la cola de condicion.");
@@ -298,7 +306,7 @@ public class Monitor implements MonitorInterface{
     /**
      * @brief Solicita finalizar el programa
      */
-    public void setFin(){
+    private void setFin(){
         finPrograma = true; 
         System.out.println("Se ha solicitado finalizar el programa. Liberando colas de condicion...");
     }
@@ -331,6 +339,5 @@ public class Monitor implements MonitorInterface{
             Thread.currentThread().interrupt();
         }
     }
-
 } 
         
