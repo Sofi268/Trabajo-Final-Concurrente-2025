@@ -85,7 +85,6 @@ public class Estadisticas implements Runnable {
                 if (invariantes >= MAX_INVARIANETS) {
                     setStop();
                     System.out.println("Se alcanzaron los invariantes. Deteniendo el sistema.");
-                    rdp.setFin();
                 }
             }
             
@@ -93,7 +92,6 @@ public class Estadisticas implements Runnable {
 
             pw.printf("Finalizando registro. Se han disparado %d transiciones.\n", canTransi);
             pw.flush();
-            monitor.setFin();
 
         } catch (IOException e) {
             e.printStackTrace();

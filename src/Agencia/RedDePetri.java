@@ -116,6 +116,11 @@ public class RedDePetri {
      */
     public boolean disparar(int t) {
         if(!fin){
+            if(t==11&& disparosT11 >= 186) {
+                System.out.println("La transicion T11 ya fue disparada 186 veces, no se puede volver a disparar.");
+                setFin();
+                return false;
+            }
             setSecuencia(t);
             System.out.println("Disparando transicion " + t);
             actualizarMarcado();
@@ -418,6 +423,10 @@ public class RedDePetri {
             System.exit(1);
         }
         return false;
+    }
+
+    public boolean isFinalizado() {
+        return fin;
     }
 }
     
