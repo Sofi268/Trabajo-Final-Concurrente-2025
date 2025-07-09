@@ -144,11 +144,9 @@ public class RedDePetri {
         }
         else{ // Disparos no temporales
             if(isSensible(t)) { // Sensibles
-                System.out.println("La transicion " + t + " no es temporal y esta sensibilizada.");
                 return 0;
             }
             else{ // No sensibles
-                System.out.println("La transicion " + t + " no es temporal pero no sensibilizada.");
                 return -1; 
             }
         } 
