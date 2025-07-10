@@ -96,6 +96,9 @@ public class RedDePetri {
      * @param t numero de transicion 
      */
     public boolean disparar(int t) {
+        if (t==0 && disparosT0 >= 186) {
+            return false; // No se puede disparar T0 mas de 186 veces
+        }
         if(!fin){
             if(t==11&& disparosT11 >= 186) {
                 System.out.println("La transicion T11 ya fue disparada 186 veces, no se puede volver a disparar.");
@@ -141,8 +144,7 @@ public class RedDePetri {
             else{ // No esta dentro de la ventana de tiempo
                return tiempoSensibilizado(t).intValue();
             }
-        }
-        else{ // Disparos no temporales
+        }else{ // Disparos no temporales
             if(isSensible(t)) { // Sensibles
                 return 0;
             }
