@@ -9,7 +9,7 @@ public class Cliente implements Runnable{
 	private Monitor monitor;
 	private int[] transicionesEntrada= {0,1};	
 	private int[] transicionesSalida= {11};	
-	int tipo;
+	private int tipo;
 
 	public Cliente(Monitor monitor, int tipo) {
 		this.monitor = monitor;
