@@ -43,6 +43,7 @@ public class Main {
         double segundos = (fin - inicio) / 1_000_000_000.0;
 
         System.out.println("\nPrograma finalizado correctamente.\n");
+        CheckInvariants.invariantes();
         rdp.imprimirMarcado();
         rdp.comprobarInvariantes();
         System.out.printf("Tiempo total de ejecucion: %.3f segundos%n", segundos);
