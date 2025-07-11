@@ -197,70 +197,6 @@ public class Monitor implements MonitorInterface{
     }
     
     /**
-     * @brief Intenta despertar un hilo en alguna cola de condicion, si es sensible
-     *
-     * @return true si se senialo a algún hilo, false si no habia hilos esperando
-     
-    private static boolean intentarSenializar() {
-        System.out.println("Buscando transiciones en cola de condicion...");
-        int tSiguiente = buscarEnColaCondicion();
-        if (tSiguiente >= 0) {
-            senializarSig(tSiguiente);
-            return true;
-        } else {
-            System.out.println("No hay transiciones en cola de condicion.");
-            return false;
-        }
-    }*/
-
-    /**
-     * @brief Busca una transicion sensible con hilos en espera.
-     *
-     * @return indice de la transicion encontrada o -1 si ninguna esta disponible
-     
-    private static int buscarEnColaCondicion() {
-        System.out.println("Buscando en colas de condicion...");
-        System.out.print("Estado de colasConHilos: ");
-        for (int i = 0; i < colasConHilos.length; i++) {
-            System.out.print("T" + i + "=" + colasConHilos[i] + " ");
-        }
-        System.out.println(); 
-
-        int n = Constantes.cantidadTransiciones;
-        int inicio = (ultimoOrden + 1) % n;
-
-        for (int i = inicio; i < n; i++) {
-            if ((colasConHilos[i]) && rdp.isSensible(i)) {
-                ultimoOrden = i;
-                System.out.println("Encontrada transicion en cola: " + i);
-                return i;
-            }
-        }
-
-        for (int i = 0; i < inicio; i++) {
-            if ((colasConHilos[i]) && rdp.isSensible(i)) {
-                ultimoOrden = i;
-                System.out.println("Encontrada transicion en cola: " + i);
-                return i;
-            }
-        }
-
-        System.out.println("No se encontraron transiciones en cola de condicion.");
-        return -1;
-    } *\
-
-    /**
-     * @brief Senializa y libera un hilo en espera para la transicion dada.
-     *
-     * @param tSensible transicion que sera senializada
-     
-    private static void senializarSig(int tSensible) {
-        System.out.println("Liberando hilo en cola de transicion " + tSensible);
-        colasConHilos[tSensible] = false; 
-        colasCondicion[tSensible].release();
-    } *\
-
-    /**
      * @brief Encola la transicion indicada y bloquea el hilo hasta ser despertado
      *
      * @param t transición que no pudo dispararse y debe esperar
@@ -337,10 +273,6 @@ public class Monitor implements MonitorInterface{
             Thread.currentThread().interrupt();
         }
     }
-
-    //actualizarPolitica(t);
-
-    //rdp.getTSensibles(); 
 
 } 
         
