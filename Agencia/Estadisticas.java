@@ -25,7 +25,6 @@ public class Estadisticas implements Runnable {
     private static int porcentajeT7;
     private static int canTransi;
     private static boolean stop;
-    private final int MAX_INVARIANETS = 186;
 
     public Estadisticas() {}
 
@@ -66,7 +65,7 @@ public class Estadisticas implements Runnable {
             int invariantes = 0;
             while (!stop) {
                 try {
-                    TimeUnit.MILLISECONDS.sleep(5);
+                    TimeUnit.MILLISECONDS.sleep(100);
                 } catch (InterruptedException e) {
                     System.out.println("Hilo interrumpido");
                     Thread.currentThread().interrupt();
@@ -82,10 +81,9 @@ public class Estadisticas implements Runnable {
                 invariantes = contarInvariantes();
                 pw.printf("Hay: %d invariantes\n",invariantes);
                 System.out.printf("Se alcanzaron %d invariantes\n\n", invariantes);
-                if (invariantes >= MAX_INVARIANETS) {
+                if (invariantes >= Constantes.MAX_INVARIANETS) {
                     setStop();
                     System.out.println("Se alcanzaron los invariantes. Deteniendo el sistema.");
-                    //rdp.setFin();
                 }
             }
             
@@ -93,7 +91,6 @@ public class Estadisticas implements Runnable {
 
             pw.printf("Finalizando registro. Se han disparado %d transiciones.\n", canTransi);
             pw.flush();
-            //monitor.setFin();
 
         } catch (IOException e) {
             e.printStackTrace();
