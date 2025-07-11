@@ -96,11 +96,11 @@ public class RedDePetri {
      * @param t numero de transicion 
      */
     public boolean disparar(int t) {
-        if (t==0 && disparosT0 >= 186) {
+        if (t==0 && disparosT0 >= Constantes.MAX_INVARIANTES) {
             return false; // No se puede disparar T0 mas de 186 veces
         }
         if(!fin){
-            if(t==11&& disparosT11 >= 186) {
+            if(t==11&& disparosT11 >= Constantes.MAX_INVARIANTES) {
                 System.out.println("La transicion T11 ya fue disparada 186 veces, no se puede volver a disparar.");
                 setFin();
                 return false;
