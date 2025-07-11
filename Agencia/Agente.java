@@ -10,7 +10,7 @@ public class Agente implements Runnable {
 	private Monitor monitor;
 	private int[] transiciones1 = {6,9,10};	
 	private int[] transiciones2 = {7,8};
-	int tipo;
+	private int tipo;
 	
 	public Agente(Monitor monitor, int tipo) {
 		this.monitor = monitor;
