@@ -44,5 +44,6 @@ public class Constantes {
                                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, -1, 0},
                                 {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, -1}
                             };
+    public static final int MAX_INVARIANETS = 186;
     
 }
