@@ -11,8 +11,7 @@ public class GestorReservas implements Runnable {
 	private Monitor monitor;
 	private int[] transiciones1= {2,5};
 	private int[] transiciones2= {3,4};
-	
-	int tipo;
+	private int tipo;
 	
 	public GestorReservas(Monitor monitor, int tipo) {
 		this.monitor = monitor;
