@@ -13,6 +13,7 @@ public class Monitor implements MonitorInterface{
     // -------------------------------------------------------------------------------------------------
     private static Semaphore mutex = new Semaphore(1, true);
     private static Semaphore[] colasCondicion; // Colas de condicion para cada transicion
+    private static String[] flagSleep; // Indica si hay hilos temporales durmiendo (nombre del hilo que "toma" la temporal)
     private static boolean[] colasConHilos; // Cantidad de hilos en cada cola de condicion
     private static boolean finPrograma = false; // Indica si se ha solicitado finalizar el programa
     private static boolean colasLiberadas = false; // Indica si las colas han sido liberadas
@@ -41,9 +42,11 @@ public class Monitor implements MonitorInterface{
         System.out.println("Iniciando Monitor...");
         colasCondicion = new Semaphore[rdp.getTransiciones()];
         colasConHilos = new boolean[rdp.getTransiciones()];
+        flagSleep = new String[rdp.getTransiciones()]; // Inicializa el flag de sleep para cada transicion temporal
         for (int i = 0; i < rdp.getTransiciones(); i++) {
             colasCondicion[i] = new Semaphore(0);
             colasConHilos[i] = false; 
+            flagSleep[i] = null;    // Inicio las flags con null. 
         }
         System.out.println("Monitor inicializado con " + rdp.getTransiciones() + " transiciones.");
     }
@@ -95,55 +98,66 @@ public class Monitor implements MonitorInterface{
             liberarMutex();
             return false;
         }
-
+        
+        // FIX flagSleep: null-check + uso correcto de currentThread().getName()
+        String currentName = Thread.currentThread().getName();
+        if (flagSleep[t] != null && flagSleep[t].equals(currentName)) {
+            flagSleep[t] = null; // Reset flag
+        }
+        
         int posibleDisparo = rdp.sePuedeDisparar(t);
         switch(posibleDisparo){
             case 0: //Se puede disparar
-                if(ejecutarDisparo(t)) { //Se  disparo la transicion
-                    
+                if(ejecutarDisparo(t)) {    //Se  disparo la transicion
                     politica.actualizarPolitica(t); // Actualizar la politica de disparo
                     int hiloADespertar = hayHiloParaDespertar();                    
-                    if (hiloADespertar>=0) { //Hay hilos en las colas de condicion para despertar
+                    if (hiloADespertar>=0) { //SI Hay hilos en las colas de condicion para despertar
                         colasConHilos[hiloADespertar] = false; 
                         colasCondicion[hiloADespertar].release(); // Despertar el hilo
                         System.out.println("Se desperto una transicion en cola de condicion.");
-                        return true;
-                    } else{ //No hay hilos para despertar
+                    }else{                  //No hay hilos para despertar
                         liberarMutex();
-                        return true; 
                     }
-                }
-                else{ //Por alguna razon no se pudo disparar
+                    return true;
+                }else{          //Por alguna razon no se pudo disparar
                     liberarMutex();
                     return false;
                 }
-
-            case -1: //No se puede disparar
-                if (!colasConHilos[t]) { //Si no hay hilos esperando en la cola de condicion
-                    try {
-                        derivarAColaCondicion(t);
-                        if (finPrograma || Thread.currentThread().isInterrupted()) {
-                            System.out.println("Programa finalizado o hilo interrumpido");
-                            liberarMutex();
+            case -1: //No se puede disparar, va a la cola de condicion.[temporales y no temporales]
+                try {
+                    derivarAColaCondicion(t);
+                    if (finPrograma || Thread.currentThread().isInterrupted()) { //TERMINA EL PROGRAMA.
+                        System.out.println("Programa finalizado o hilo interrumpido");
+                        liberarMutex();
+                        return false;
+                    }
+                    else return entrarMonitor(t);
+                } catch (RuntimeException e) {
+                    System.out.println("Error al esperar en la cola de condicion.");
+                    Thread.currentThread().interrupt();
+                    liberarMutex();
+                    return false; 
+                }                
+            default: // Es temporal pero aun le falta tiempo.
+                if(posibleDisparo>0){ // No esta en la ventana de disparo
+                    if (flagSleep[t] == null) { // sos el primero? ver la flag. si es asi, dormis.
+                        flagSleep[t] = Thread.currentThread().getName(); //levanto el flag.
+                        liberarMutex();
+                        dormirTemporal(posibleDisparo);
+                        return false;
+                    } else { // no sos el primero, cola de condicion.
+                        try {
+                            derivarAColaCondicion(t);
+                            if (finPrograma || Thread.currentThread().isInterrupted()) {
+                                System.out.println("Programa finalizado o hilo interrumpido");
+                                return false;
+                            } else return entrarMonitor(t);
+                        } catch (RuntimeException e) {
+                            System.out.println("Error al esperar en la cola de condicion.");
+                            Thread.currentThread().interrupt();
                             return false;
                         }
-                        else return entrarMonitor(t);
-
-                    } catch (RuntimeException e) {
-                        System.out.println("Error al esperar en la cola de condicion.");
-                        Thread.currentThread().interrupt(); 
                     }
-                } else { // Si hay un hilo esperando en la cola de condicion
-                    liberarMutex(); 
-                    return false;
-                }
-                
-            default: 
-
-                if(posibleDisparo>0){ // No esta en la ventana de disparo
-                    liberarMutex();
-                    dormirTemporal(posibleDisparo);
-                    return false;
                 } else {
                     System.out.println("ERROR: Transicion " + t + " no es valida o no se puede disparar.\n");
                     liberarMutex();
@@ -264,7 +278,6 @@ public class Monitor implements MonitorInterface{
             System.out.println("Programa finalizado o hilo interrumpido, no se duerme temporalmente.");
             return;
         }
-
         try {
             System.out.println("Durmiendo temporalmente por " + sensible + " ms...\n");
             TimeUnit.MILLISECONDS.sleep(sensible);
@@ -275,4 +288,3 @@ public class Monitor implements MonitorInterface{
     }
 
 } 
-        

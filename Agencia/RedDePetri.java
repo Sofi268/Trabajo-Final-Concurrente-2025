@@ -123,7 +123,6 @@ public class RedDePetri {
             return false;
         }
     }
-
     /**
      * @brief Evalua si una transición puede dispararse, considerando si es temporal o no
      * 
@@ -136,22 +135,23 @@ public class RedDePetri {
      *         o un valor positivo indicando el tiempo que debe dormir hasta que entre en la ventana
      */
     public int sePuedeDisparar(int t) {
-        if(esTemporal(t)){ //Disparos temporales
-            if(checkTemporaryShot(t)&&isSensible(t)) { // Esta dentro de la ventana de tiempo y es sensible
-                System.out.println("La transicion " + t + " esta sensibilizada y dentro de la ventana de tiempo.");
+        if(isSensible(t)) { //Esta Sensible
+            if(esTemporal(t)){ // Disparos temporales
+                if(checkTemporaryShot(t)) { // Esta dentro de la ventana de tiempo
+                    System.out.println("(Dispara) La transicion " + t + " esta sensibilizada y dentro de la ventana de tiempo.");
+                    return 0;
+                }else{  // No esta dentro de la ventana de tiempo.
+                    System.out.println("La transicion " + t + " esta sensibilizada pero no dentro de la ventana de tiempo.");
+                    return tiempoSensibilizado(t).intValue();
+                }
+            }else{ // disparos no temporales
+                System.out.println("La transicion " + t + "(Dispara) no es temporal y esta sensibilizada.");
                 return 0;
             }
-            else{ // No esta dentro de la ventana de tiempo
-               return tiempoSensibilizado(t).intValue();
-            }
-        }else{ // Disparos no temporales
-            if(isSensible(t)) { // Sensibles
-                return 0;
-            }
-            else{ // No sensibles
-                return -1; 
-            }
-        } 
+        }else{ // No sensibles -> va a la cola de condicion. TODOS [temporales y no temporales].
+                System.out.println("La transicion " + t + " no esta sensibilizada.va a la cola de condicion.");
+                return -1;
+        }
     }
 
     /**
@@ -360,4 +360,3 @@ public class RedDePetri {
         return fin;
     }
 }
-    
