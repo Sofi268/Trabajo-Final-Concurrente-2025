@@ -14,10 +14,9 @@ public class Monitor implements MonitorInterface{
     private static Semaphore mutex = new Semaphore(1, true);
     private static Semaphore[] colasCondicion; // Colas de condicion para cada transicion
     private static String[] flagSleep; // Indica si hay hilos temporales durmiendo (nombre del hilo que "toma" la temporal)
-    private static boolean[] colasConHilos; // Cantidad de hilos en cada cola de condicion
     private static boolean finPrograma = false; // Indica si se ha solicitado finalizar el programa
     private static boolean colasLiberadas = false; // Indica si las colas han sido liberadas
-    private static Politicas politica = Politicas.getInstance("Prioridad"); // "Balanceada" o "Prioridad".
+    private static Politicas politica = Politicas.getInstance("Balanceada"); // "Balanceada" o "Prioridad".
     // -------------------------------------------------------------------------------------------------
     public Monitor(){
         System.out.println("Monitor creado.");
@@ -41,11 +40,9 @@ public class Monitor implements MonitorInterface{
     public static void startMonitor() {
         System.out.println("Iniciando Monitor...");
         colasCondicion = new Semaphore[rdp.getTransiciones()];
-        colasConHilos = new boolean[rdp.getTransiciones()];
         flagSleep = new String[rdp.getTransiciones()]; // Inicializa el flag de sleep para cada transicion temporal
         for (int i = 0; i < rdp.getTransiciones(); i++) {
             colasCondicion[i] = new Semaphore(0);
-            colasConHilos[i] = false; 
             flagSleep[i] = null;    // Inicio las flags con null. 
         }
         System.out.println("Monitor inicializado con " + rdp.getTransiciones() + " transiciones.");
@@ -111,8 +108,7 @@ public class Monitor implements MonitorInterface{
                 if(ejecutarDisparo(t)) {    //Se  disparo la transicion
                     politica.actualizarPolitica(t); // Actualizar la politica de disparo
                     int hiloADespertar = hayHiloParaDespertar();                    
-                    if (hiloADespertar>=0) { //SI Hay hilos en las colas de condicion para despertar
-                        colasConHilos[hiloADespertar] = false; 
+                    if (hiloADespertar>=0) { //SI Hay hilos en las colas de condicion para despertar 
                         colasCondicion[hiloADespertar].release(); // Despertar el hilo
                         System.out.println("Se desperto una transicion en cola de condicion.");
                     }else{                  //No hay hilos para despertar
@@ -173,7 +169,7 @@ public class Monitor implements MonitorInterface{
     private int hayHiloParaDespertar() {
         Integer[] tSensibles = rdp.getTSensibles();
         for (int i = 0; i < tSensibles.length; i++) {
-            if (colasConHilos[i] && tSensibles[i] == 1){
+            if (colasCondicion[i].getQueueLength() > 0 && tSensibles[i] == 1) {
                 if (politica.sePuedeDisparar(i)) {
                     return i;
                 }
@@ -217,11 +213,9 @@ public class Monitor implements MonitorInterface{
      */
     private static void derivarAColaCondicion(int t) {
         System.out.println("Colocando transicion " + t + " en cola de condicion...");
-        colasConHilos[t] = true;
         liberarMutex();
 
         if (finPrograma || Thread.currentThread().isInterrupted()) {
-            colasConHilos[t] = false;
             System.out.println("Programa finalizado o hilo interrumpido, no se bloquea en cola de condicion.");
             return;
         }
@@ -230,7 +224,6 @@ public class Monitor implements MonitorInterface{
             colasCondicion[t].acquire();
             System.out.println("Hilo de transicion " + t + " liberado de la cola.");
         } catch (InterruptedException e) {
-            colasConHilos[t] = false;
             System.out.println("Hilo interrumpido al esperar en cola (T" + t + ").");
             Thread.currentThread().interrupt();
         }
@@ -242,10 +235,10 @@ public class Monitor implements MonitorInterface{
     private static void librerarColas() {
         if (colasLiberadas) return;
         System.out.println("Finalizando Monitor...");
-        for (int i = 0; i < colasCondicion.length; i++) {
-            if (colasConHilos[i]) {
-                colasCondicion[i].release(); 
-            }
+        for (Semaphore colasCondicion1 : colasCondicion) {
+            if (colasCondicion1.getQueueLength() > 0) { // Si hay hilos en la cola
+                colasCondicion1.release();
+            } 
         }
         System.out.println("Las colas de condicion fueron liberadas correctamente.");
         colasLiberadas = true; 
